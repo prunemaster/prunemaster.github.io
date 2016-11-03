@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+<head>
+	<title>IE webfont popup test</title>
+	<meta charset=utf-8>
+
+	<!--=============================================================================================-->
+	<!--                                                                                             -->
+	<!-- https://social.technet.microsoft.com/Forums/ie/en-US/ce6f0c83-f415-47dd-968e-7615df1c872e/  -->
+	<!-- webfontsicons-are-not-showing-properly                                                      -->
+	<!--                                                                                             -->
+	<!--=============================================================================================-->
+
+	<link href=css/Slackey.css rel=stylesheet type=text/css>
+
+	<style type=text/css>
+
+		* { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		.test { font-family:Slackey,'Segoe UI',sans-serif; font-size:24pt }
+		#downcount { display:inline-block; font-size:20pt; color:firebrick; border:1px solid firebrick; padding:1em }
+	</style>
+</head>
+<body>
+	<br>
+	<p>This is normal text font.</p>
+	<br>
+	<p class=test>This is Slackey webfont.</p>
+
+	<br>
+	<p id=downcount>
+		<script>
+			(function t(i){
+				downcount.innerHTML=i
+				if (i) setTimeout( function(){ t(--i) }, 1000)
+				else window.open( "popup.html","","width=300,height=300" )
+			})(5)
+		</script>
+	</p>
+</body>
+</html>

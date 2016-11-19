@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> dynamic popup table test </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<!-- ========================================================================================================================================================== -->
+	<!--                                                                                                                                                            -->
+	<!-- https://connect.microsoft.com/IE/feedback/details/1271727/kb3038314-massice-performance-problems-in-ie                                                     -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/0b1cd4c5-1b3c-4816-8c43-5a3d6d287679/kb3038314-performance-issue-when-i-use-innerhtml                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/28e9c4b1-b4c7-46f1-827b-00a0523a3126/performance-issues-after-kb3038314-installation-when-innerhtml-is-used -->
+	<!--                                                                                                                                                            -->
+	<!-- ========================================================================================================================================================== -->
+
+	<style type=text/css>
+		    * { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		.code { font-family:'Courier New',monospace }
+	</style>
+
+	<script>
+		noInnerHTMLflag= (location.search.toUpperCase()=="?NOINNERHTML")					// patch-in  check without innerHTML
+
+		var defaultVal= 500
+		var hugeVal=    5000
+
+		var popup= null
+
+		function go() {
+
+			if (noInnerHTMLflag) (result.firstChild && (result.firstChild.data=""))				// patch-in  check without innerHTML
+			else												// patch-in  check without innerHTML
+			result.innerHTML=""
+
+			var n= parseInt(input.value, 10)
+			if (!n || (n<1)) n= defaultVal
+			if (n>=hugeVal)
+				if (!confirm( n + ' is a big number.  Are you sure?' )) return
+
+			input.value= n
+
+			if (popup && !popup.closed) popup.close()
+			popup= open("about:blank")
+
+			setTimeout( function(){ gone(n) },0 )
+		}
+
+		function gone(n) {
+
+			var t0= (new Date()).getTime()
+
+			var doc= popup.document
+
+			if (noInnerHTMLflag) {										// patch-in  check without innerHTML
+				doc.body.appendChild(doc.createElement("br"))						// patch-in  check without innerHTML
+				doc.body.appendChild(doc.createElement("p")).id="p"					// patch-in  check without innerHTML
+				doc.body.appendChild(doc.createElement("br"))						// patch-in  check without innerHTML
+				doc.body.appendChild(doc.createElement("div")).id="div"					// patch-in  check without innerHTML
+			}else												// patch-in  check without innerHTML
+			doc.body.innerHTML= [	'<br>',
+						'<p id=p></p>',
+						'<br>',
+						'<div id=div></div>',
+						''
+						].join('\r\n')
+
+			var p=   doc.getElementById('p')
+			var div= doc.getElementById('div')
+
+			var table= doc.createElement('table')
+			div.appendChild(table)
+
+			if (noInnerHTMLflag)										// patch-in  check without innerHTML
+				for (var i=0, r; i<n; i++ ) {								// patch-in  check without innerHTML
+															// patch-in  check without innerHTML
+					r= table.insertRow()								// patch-in  check without innerHTML
+															// patch-in  check without innerHTML
+					r.appendChild(doc.createElement('th')).appendChild(doc.createTextNode(i+1))	// patch-in  check without innerHTML
+															// patch-in  check without innerHTML
+					if (idiotbutton.checked) {							// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('IECustomizer'))		// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('is'))			// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('an'))			// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('idiot.'))		// patch-in  check without innerHTML
+					}else {										// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('Popup'))			// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('table'))			// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('performance'))		// patch-in  check without innerHTML
+						r.insertCell().appendChild(doc.createTextNode('test'))			// patch-in  check without innerHTML
+					}										// patch-in  check without innerHTML
+				}											// patch-in  check without innerHTML
+			else												// patch-in  check without innerHTML
+			for (var i=0, r; i<n; i++ ) {
+
+				r= table.insertRow()
+
+				r.appendChild(doc.createElement('th')).innerHTML= i+1
+
+				if (idiotbutton.checked) {
+					r.insertCell().innerHTML= 'IECustomizer'
+					r.insertCell().innerHTML= 'is'
+					r.insertCell().innerHTML= 'an'
+					r.insertCell().innerHTML= 'idiot.'
+				}else {
+					r.insertCell().innerHTML= 'Popup'
+					r.insertCell().innerHTML= 'table'
+					r.insertCell().innerHTML= 'performance'
+					r.insertCell().innerHTML= 'test'
+				}
+			}
+
+			var tf= (new Date()).getTime()
+
+			if (noInnerHTMLflag)										// patch-in  check without innerHTML
+				p.appendChild(doc.createTextNode(" ")).data=						// patch-in  check without innerHTML
+				(result.firstChild || result.appendChild(document.createTextNode(" "))).data=		// patch-in  check without innerHTML
+				'Elapsed time '+(tf-t0)+ ' ms'								// patch-in  check without innerHTML
+			else												// patch-in  check without innerHTML				
+			p.innerHTML= result.innerHTML= 'Elapsed time '+(tf-t0)+ ' ms'
+		}
+	</script>
+</head>
+<body>
+	Please enter the number of rows
+		<input id=input type=text value=500 style=margin-left:1em>
+		<button type=button onclick=go() style=margin-left:1em>go!</button>
+		<input id=idiotbutton type=radio title="idiot button" style=margin-left:2em onclick="this.checked=this.chkd=!this.chkd">
+	<br>
+	<p id=result></p>
+</body>
+</html>

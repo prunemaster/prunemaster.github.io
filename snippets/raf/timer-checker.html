@@ -1,0 +1,49 @@
+<!doctype html>
+	<title>test</title>
+	<meta charset=utf-8>
+
+	<style>
+		* { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		table { border-collapse:collapse; margin:1em; white-space:nowrap }
+		td:first-child { text-align:right; padding-right:1em }
+		button { margin:1em }
+	</style>
+
+	<table>
+		<tr><td>setInterval elapsed time<td id=si>0
+		<tr><td>Date.getTime elapsed time<td id=gt>0
+		<tr><td>requestAnimationFrame rate<td id=raf>0
+		<tr><td>(last 10 rates)<td id=raf10>0
+	</table>
+
+	<button onclick="open('timer-checker.html','','resizable,width=500,height=300')">open popup</button>
+	<button onclick="showModalDialog('timer-checker.html',null,'center:yes; dialogWidth:500px; dialogHeight:300px; resizable:yes; scroll:no' )">modal dialog</button>
+	<button onclick=resetTimer()>reset timer</button>
+
+	<script>
+		var startTime,counter,t,  rafCounter,rafStack,r
+
+		function resetTimer(){
+
+			clearInterval(t)
+			r && cancelAnimationFrame(r)
+
+			startTime= +new Date().getTime()
+			counter= rafCounter= si.innerHTML= gt.innerHTML= raf.innerHTML= raf10.innerHTML= 0
+			rafStack=[]
+			t= setInterval(	function(){
+						si.innerHTML= ++counter
+						gt.innerHTML= ((+new Date().getTime() - startTime)/1000).toFixed(3).replace(/\.000|0+$/,"")
+						raf.innerHTML= rafCounter
+						if (rafStack.unshift(rafCounter)>10) rafStack.length=10
+						rafCounter= 0
+						raf10.innerHTML= rafStack.join(" ")
+					}, 1000)
+			r= window.requestAnimationFrame &&
+				requestAnimationFrame(	function rafFunc(){
+								++rafCounter
+								r= requestAnimationFrame( rafFunc )
+							})
+		}
+		resetTimer()
+	</script>

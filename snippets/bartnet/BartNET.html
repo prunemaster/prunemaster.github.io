@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Main Page</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<!--        <script src="http://code.jquery.com/jquery-1.9.1.js" type="text/javascript"></script>  -->
+	<!--        <script src="http://code.jquery.com/jquery-2.1.1.js" type="text/javascript"></script>  -->
+	<!--        <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-resize/1.1/jquery.ba-resize.min.js" type="text/javascript"></script> -->
+
+	<script>
+		(function(){	var p    = ((location.protocol=="https:")?("https:"):("http:"))
+				var s    = document.createElement("script")
+
+				if (location.search.substr(0,6)=="?2.1.1")
+					s.src = p+"//code.jquery.com/jquery-2.1.1.min.js"
+				else	s.src = p+"//code.jquery.com/jquery-1.9.1.min.js"
+
+				onload               = function(){ script1.load=true; script1() }
+				s.onload             = function(){ if ((typeof(script1) != 'undefined')
+								   && (typeof(script1.load) != 'undefined')) script1() }
+				s.onreadystatechange = function(){ if ((s.readyState=='complete')				//IE8
+								   || (s.readyState=='loaded')) s.onload() }			//IE8
+
+				document.getElementsByTagName("head")[0].insertBefore(s,document.scripts[0])
+				})()
+	</script>
+</head>
+	<!-- ================================================================================================== -->
+<body>
+	<iframe id="myFrame" src="about:blank" style="height:100%; width:100%; overflow:hidden" scrolling=no></iframe>		<!-- IE8  scrolling=no  for IE8 -->
+
+	<script>
+
+	//====================
+	  function script1() {
+		if ((typeof(script1.done)!='undefined')
+		||  (typeof($)=='undefined')) return;
+		else script1.done=true
+	//====================
+
+		$(function() {											// this is BartNET's original script.
+														// modified for this experiment.
+			var iframe = $('#myFrame');
+
+			var eventMethod = (window.addEventListener ? "addEventListener" : "attachEvent" )	// why is this done with js, whereas other handlers below are setup with jQuery?
+			var eventer = window[eventMethod]							// this sets the (parent) window's postMessage listener:
+			var messageEvent = ((eventMethod == "attachEvent") ? "onmessage" : "message" )		//
+														//  if (window.addEventListener)
+			// Listen to message from iFrame resize							//       { var eventer=window.addEventListener, messageEvent="message"   }
+														//  else { var eventer=window.attachEvent,      messageEvent="onmessage" }
+			eventer(messageEvent, function(e) {
+														//
+				//    iframe.css({ height: e.data });						//
+														//
+				if (!iframe[0].echosize) {							//  per manual onresize() call in onload handler, iframe will always postMessage upon onload.
+					iframe[0].echosize = e.data						//  onload handler deletes echosize.  so if undef'd here, this is that first pingback.
+					iframe[0].style.height=e.data+"px" }					//  resize iframe and remember the size.
+														//
+				else if (iframe[0].echosize == e.data)						// justincase iframe reports another (identical) resize due to our setting style.height (shouldn't)
+					iframe[0].echosize = -1							// silently consume this event.  make sure it won't match again.
+														//
+				else {	iframe[0].style.border="1px solid red"					// else iframe got resized for some other reason (eg, user grippy)
+					setTimeout(function(){iframe[0].style.border=""},1000)			// blink it red to notify we saw it
+					iframe[0].echosize = e.data						// resize it and remember the size.
+					iframe[0].style.height=e.data+"px" }					//
+														//
+				pmsgsrc.innerHTML =	((e.source==window)?("window"):				// show event.source of postMessage
+							((e.source==iframe[0].contentWindow)?("iframe"):	//
+							(e.source)))						//
+			}, false);										//
+
+			//////////////////////////////////////////////////////////////////////////////////////////
+			// This onload handler sets up an onresize handler in the newly loaded iframe.
+			// The resize handler in turn invokes parent.postMessage to notify us (parent) of the event.
+			//
+			// There is a very obscure, tricky detail that was overlooked in the original scripting.
+			// It is not actually "injecting" a <script> inside that iframe, which would live and run
+			// in that iframe's "browsing context".  It looks that way, but it's not.  Instead, what
+			// actually happens is, the resize handler code exists in this (parent) window, and it is
+			// listening to that iframe.contentWindow's resize event.  The same subtle issue would
+			// occur if we simply set our handler into that iframe.contentWindow.onresize property.
+			// It is still this (parent) code, and it still executes in this (parent) "browsing context".
+			//
+			// The difference is:
+			//    if the iframe document owned script, its Window Object would be iframe.contentWindow
+			//    but since the handler is merely registered from here (parent), the resize handler
+			//    we supply retains our original (parent) Window Object
+			//
+			// So when the resize handler below executes, "window" actually equals "parent" !
+			// So when the resize handler below executes, "window" is NOT iframe.contentWindow !
+			//
+			// The resize handler.  Not attached to the outside of the iframe element.
+			// It's registered to the INSIDE iframe resize event.  Yet, when the code
+			// gets invoked, "window" does NOT refer to the iframe.  It is the parent window.
+			// See how tricky?
+			//////////////////////////////////////////////////////////////////////////////////////////
+
+			iframe.load(function() {								//
+														// 
+				if (typeof(iframe[0].echosize) != 'undefined')					// IE8 throws if undef'd, so check first
+				delete iframe[0].echosize							// remove echosize at start of iframe.onload.   (see messageEvent listener above)
+														//
+				iframe[0].stopdup = false							// IE8,9,10,11   always start new load with stopdup=false
+														//
+				var formwindow = $(myFrame.contentWindow||myFrame)				//  gecko+webkit || IE   (could just use $(window.frames[0]) for all browsers instead)
+														//                       (or even formwindow=$(iframe[0].contentWindow) )
+				formwindow.resize(function () {
+																//
+					if (iframe[0].stopdup==true){ iframe[0].stopdup=false; return }				// IE8,9,10,11    never true except with IE.  matching bookend for workaround below.
+																//
+					try	{ if (chkfind.checked) $(this.document).find("body") }				// TEST FOR THROW from jquery .find()
+					catch(e){ alert(e.message||e) }								//
+																//
+					var elem = $(this.document.documentElement)						// documentElement.offsetHeight  is the full iframe content height
+																//
+					if (chkIEfix.checked && document.documentMode) {					// IE8,9,10,11  gives some unpredictable offsetHeight  (and scrollHeight and clientHeight)
+						iframe[0].style.height= "0px"							// IE8,9,10,11  workaround:  shrink style.height to zero
+						iframe[0].style.height= elem.prop("scrollHeight")+"px"				// IE8,9,10,11  workaround:  then expand it to scrollHeight (which then reports correct content height)
+						iframe[0].stopdup=true }							// IE8,9,10,11  this triggers new resize event. set flag to ignore next event.  prevents infinite loop.
+																//
+					var tmp = evalbox.checked								// IE8  throws on "this.Function"   (so its default here is "false")
+					if (tmp)										//
+					    try	    { var init= "parent.postMessage(document.documentElement.offsetHeight,'*')"	// init string for "new Function" constructor
+						      var pmsg=  this.Function( init )						// "this."  create function as property of iframe context
+						      pmsg()  }									// pmsg is here in parent window, but ref's function object in iframe context
+					    catch(e){ tmp=false; alert(e.message||e) }						//
+					if (!tmp)										//
+					    window.parent.postMessage( elem.prop("offsetHeight"), '*')				// else, "injected" script lives in parent window context
+					    //            postMessage( elem.prop("offsetHeight"), '*')				// same thing, the prefixes are redundant.  parent==window right now.
+				});										//
+				formwindow.resize()								//
+                	});
+			var src = "OldPage.html"
+			iframe.attr('src', src);
+		});
+
+	//==================
+	  }       // script1
+	//==================
+        </script>
+
+	<!-- ======================================================================= -->
+	<br>
+	<br>
+	<input id=btn191 type=radio> &nbsp; jQuery 1.9.1
+		&nbsp;&nbsp;&nbsp;&nbsp;
+	<input id=btn211 type=radio> &nbsp; jQuery 2.1.1
+	<br>
+	<br>
+	<input id=chkfind type=checkbox> &nbsp; Check to test if jQuery.<u>find()</u> throws error
+	<br>
+	<input id=chkIEfix type=checkbox> &nbsp; Check to enable IE offsetHeight workaround
+	<br>
+	<table style=border-collapse:collapse>
+		<tr> <td><input id=evalbox type=checkbox>&nbsp;&nbsp;</td> <td>Use <u>this.Function()</u> in resize handler to invoke postMessage</td> </tr>
+		<tr> <td></td>                                             <td><u>postMessage.source</u>:&nbsp;&nbsp;<span id=pmsgsrc></span></td>   </tr>
+	</table>
+
+	<script>
+		chkfind.checked  =true
+		if (!(myFrame.contentWindow||myFrame).Function)	//IE8 neither eval() method -nor- Function() constructor are exposed as properties of iframe.contentWindow
+			evalbox.checked=false			//IE8 they're only property of Window (parent)
+		else						//IE8 so, uncheck it
+		evalbox.checked =true
+		chkIEfix.checked=true
+
+		btn211.checked =btn211.chkd =(location.search.substr(0,6) == "?2.1.1")
+		btn191.checked =btn191.chkd =!btn211.chkd
+
+		btn191.onclick =btn211.onclick = function(){							// radio buttons only click "on", they don't click "off"
+						if (this.checked != this.chkd) {				// so unless this is a transition (to "on"), just ignore the click, it's already "on"
+							if (this==btn191)
+								var jq="1.9.1", b1=btn191, b2=btn211;
+							else	var jq="2.1.1", b1=btn211, b2=btn191;
+
+							b2.checked = false					// turn off opposite button
+
+							if (confirm("Do you want to restart the page with jQuery "+jq + "?"))
+								location.href = location.href.match(/[^?]*/)[0] + "?" + jq
+							else	(b1.checked=b1.chkd, b2.checked=b2.chkd)
+						}}								// no, revert radio buttons
+	</script>
+	<!-- ======================================================================= -->
+</body>
+</html>
+

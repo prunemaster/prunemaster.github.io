@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>W3C datalist code example</title>
+	<meta charset=UTF-8>
+
+	<!-- ========================================================= -->
+	<!-- http://www.w3.org/TR/html5/forms.html#htmldatalistelement -->
+	<!-- ========================================================= -->
+</head>
+<body style="font-family:'Segoe UI',sans-serif;font-size:12pt">
+	<div id=codeExampleText style="display:inline-block;border:1px solid black;padding:1em;font-family:'Courier New',monospace;font-size:10.5pt;white-space:pre"></div>
+	<br>
+	<br>
+	<div id=codeExample>
+		<label>
+		 Sex:
+		 <input name=sex list=sexes>
+		 <datalist id=sexes>
+		  <option value="Female">
+		  <option value="Male">
+		 </datalist>
+		</label>
+	</div>
+	<br>
+	<br>
+	<a href=http://www.w3.org/TR/html5/forms.html#htmldatalistelement target=_blank>www.w3.org/TR/html5/forms.html#htmldatalistelement</a>
+	<br>
+	<a id=a target=_blank>validator.w3.org</a>
+
+	<script>
+		codeExampleText.appendChild(document.createTextNode(codeExample.innerHTML.replace(/^[^<]*|\t|[^>]*$/g,"")))
+		a.href="https://validator.w3.org/nu/?doc=" + encodeURIComponent(location.href.replace(/\/\/.*googledrive/i,"//googledrive"))
+	</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>iframe.src test</title>
+
+	<script>
+		var url="W1253.html"			// (for utf-8 charset, don't use BOM, else it'll be transcribed verbatim here)
+		var xhr = new XMLHttpRequest()
+		xhr.open('GET', url, true)
+		xhr.responseType="arraybuffer"		// firefox doesn't honor charset in xhr.overrideMimeType="text/html;Windows-1253"
+		xhr.onload=function(){
+			var d=new DataView(xhr.response)
+			var n=d.byteLength
+			xhr={response:""}
+			for (var i=0;i<n;i++) xhr.response+= String.fromCharCode(d.getUint8(i))
+		}
+		xhr.send()
+	</script>
+
+	<iframe id=iframe></iframe>
+
+	<button onclick="
+			this.style.display='none';
+			if (iframe.frameElement) /*IE*/
+				iframe.frameElement.src='javascript:parent.xhr.response';	/*javascript: IE sets charset=unicode*/
+			else if (location.search=='?test1')  /*test firefox,chrome*/
+				iframe.src='javascript:parent.xhr.response';			/*firefox:windows-1252  chrome:utf-8*/
+
+			else if (!('srcdoc' in iframe)) /*msEdge*/
+				iframe.src='data:text/html;charset=Windows-1253;base64,'+btoa(xhr.response);
+			else if (location.search=='?test2')  /*test firefox,chrome*/
+				iframe.src='data:text/html;charset=Windows-1253;base64,'+btoa(xhr.response);
+
+			else	iframe.srcdoc=xhr.response;					/*srcdoc: firefox,chrome set charset=utf-8*/
+
+			"
+			>click</button>

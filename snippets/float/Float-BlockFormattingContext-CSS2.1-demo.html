@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Block Formatting Context</title>
+	<meta charset=UTF-8>
+
+	<!-- ================================================================================ -->
+	<!--                                                                                  -->
+	<!-- CSS 2.1  9.5 FLOATS                                                              -->
+	<!-- http://www.w3.org/TR/CSS21/visuren.html#floats                                   -->
+	<!--                                                                                  -->
+	<!-- box1=float-left  box2=normal-flow                                                -->
+	<!-- the two boxes overlap, box2 underneath, when box2 has overflow:visible           -->
+	<!-- the two boxes are side-by-side when box2 has overflow:hidden                     -->
+	<!--                                                                                  -->
+	<!-- OVERFLOW: thus produces the OPPOSITE effect of its value in this demo.           -->
+	<!-- overflow:VISIBLE causes box2 to be HIDDEN underneath box1 (box1 is out-of-flow)  -->
+	<!-- overflow:HIDDEN  causes box2 to scoot rightward next to box1 (becomes VISIBLE)   -->
+	<!--                                                                                  -->
+	<!-- ================================================================================ -->
+
+	<style type=text/css>
+
+		body { overflow:auto }									/* IE5-mode remove unnec scrollbar */
+		html { overflow:auto }									/* IE7-mode remove unnec scrollbar */
+		body,html { font-family:'Segoe UI',sans-serif; font-size:10.5pt }			/* IE5-mode needs font in table explicitly */
+		body,html { background-color:gray; width:100%;height:100%;margin:0;padding:0 }
+
+
+		#div1 {	float:left;
+			background-color:lightcoral; background-color:rgba(240,128,128,0.7) }		/* #f08080 */	/* IE8 doesn't do RGBA */
+
+			#tween { display:none }
+			.tween { padding:1em }
+
+		#div2 { display:block;
+			background-color:lightblue; background-color:rgba(173,216,230,1.0);		/* #add8e6 */	/* IE8 doesn't do RGBA */
+			overflow:hidden }
+		#div1,
+		#div2 { width:150px; height:150px; padding:1em }
+
+		#wrapper { position:relative; width:400px;height:auto; padding:2em; background:white }
+		      #p { position:absolute; left:2em;right:2em;bottom:2em; padding-top:2em; visibility:hidden }
+
+		input[type=radio]    { vertical-align:text-top }
+		input[type=checkbox] { vertical-align:middle }
+
+		.code { font-family:'Courier New',monospace }
+	</style>
+
+	<script type=text/javascript>
+
+		onload= function(){
+
+			rb1.onclick= function(){ div2.style.overflow= "hidden"  }		// "overflow:hidden"  causes display:block div2 to become a "Block Formatting Context", div2 shifts right of float:left div1 (not permitted to overlap it)
+			rb2.onclick= function(){ div2.style.overflow= "visible" }		// "overflow:visible" causes display:block div2 to NOT be a "Block Formatting Context", div2 renders underneath float:left div1 (floated div1 is out-of-flow element)
+			rb1.click()
+
+			rb3.onclick= function(){ tween.style.display= (rb3.checked= rb3.chkd= !rb3.chkd)?"inline":"none" }	// this puts a few lines of text between div1 and div2
+			rb3.checked= rb3.chkd= false										// it causes div2 to shift down a few lines.  when overflow:visible, it shows that the word "block" is aligning beneath div1
+
+			rb4.onclick= function(){										// this makes div2 wider than div1
+				rb4.checked= rb4.chkd= !rb4.chkd								// when overflow:visible, it shows that the word "block" aligns rightward of div1.  compare with rb3 comments above.
+				div2.style.width= rb4.chkd?"200px":""								// so the conclusion is, when overflow:visible, the word "block" is in LINE BOX that is alway OUTSIDE div1
+				div1.style.width= rb4.chkd?"100px":""
+			}
+			rb4.checked= rb4.chkd= false
+
+
+			var pad= 0												// this section fine-tunes the wrapper div width:height  -   with radio-buttons and link at bottom
+			var d= div1.offsetWidth + div2.offsetWidth								//
+			wrapper.style.width= d+"px"										// w3c box-model:  setting style.width should affect content-box only.  total offsetWidth will be that width PLUS padding+border
+			if (wrapper.offsetWidth==d){										// legacy IE box-model 
+				pad= (div1.getBoundingClientRect().left-wrapper.getBoundingClientRect().left)*2			// legacy IE box-model      
+				while(true){											// legacy IE box-model
+					wrapper.style.width= d+pad+"px"								// legacy IE box-model
+					if (div1.getBoundingClientRect().bottom > div2.getBoundingClientRect().top) break	// legacy IE box-model
+					else d++										// IE5 bug, there's a few unexpected pixels between div1 and div2 boxes
+				}												// IE5 bug, so not enough width on line for both div1+div2.  div2 drops beneath div1.
+			}													// IE5 bug, keep incrementing width until wide enough for div2 to rise up to same line as div1
+			wrapper.style.height= wrapper.offsetHeight + p.offsetHeight + pad + "px"				//
+																//
+			p.style.visibility= "visible"										//
+																//
+			var w= wrapper.offsetWidth										//
+			var h= wrapper.offsetHeight										//
+
+			onresize= function(){											// this section centers the wrapper div
+				if (document.body.offsetWidth > w)								// scripted, as opposed to with css
+					wrapper.style.marginLeft= ((document.body.offsetWidth-w)/2)+"px"			// because earlier IE does it badly with css
+				else	wrapper.style.marginLeft= 0								// and even IE11 will clip top when window is too short
+																//
+				if (document.body.offsetHeight > h)								//
+					wrapper.style.marginTop= ((document.body.offsetHeight-h)/2)+"px"			//
+				else	wrapper.style.marginTop= 0								//
+			}													//
+			onresize()												//
+		}
+	</script>
+</head>
+<body>
+	<div id=wrapper>
+		<div id=div1 class=code>float</div>
+		<span id=tween>
+			<span class=tween>some text</span><br>
+			<span class=tween>some text</span><br>
+			<span class=tween>some text</span>
+		</span>
+		<div id=div2 class=code>block</div>			<!-- this word "BLOCK" drops beneath div1 when div2 overflow:visible.  its LINE BOX aligns BENEATH div1.  More generally, OUTSIDE div1.  sheesh. -->
+
+		<p id=p>
+			<input id=rb1 name=rb type=radio>&nbsp; blue box <span class=code>overflow:hidden</span>
+			<br>
+			<input id=rb2 name=rb type=radio>&nbsp; blue box <span class=code>overflow:visible</span>
+			<br>
+			<br>
+			<input id=rb3 name=xx type=checkbox>&nbsp; some text between the boxes
+			<br>
+			<input id=rb4 name=yy type=checkbox>&nbsp; blue box wider (watch word <span class=code>block</span>)
+			<br>
+			<br>
+			<a href="http://www.w3.org/TR/CSS21/visuren.html#floats" target="_blank">CSS 2.1 section 9.5 FLOATS</a>
+		</p>
+	</div>
+</body>
+</html>

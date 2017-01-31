@@ -1,0 +1,59 @@
+<!doctype html>
+
+<title>open close pdf</title>
+<meta charset=utf-8>
+<!-- ===================================================================================== -->
+<!-- https://social.msdn.microsoft.com/Forums/en-US/efbed168-9c24-4efb-8652-3d758062b09d/  -->
+<!-- how-can-i-use-javascript-to-close-a-pdf-tab-in-ie?forum=iewebdevelopment              -->
+<!-- ===================================================================================== -->
+
+<style type=text/css>
+	* { font-family:'Segoe UI',sans-serif; font-size:12pt }
+</style>
+
+<script>
+	var url="pdf_open_parameters.pdf"
+	var popup
+	var T,ms
+
+	function checkState(t){
+		var text
+		if (!popup) text='popup='+String(popup)
+		else if (popup.closed){
+			text='popup.closed='+popup.closed
+			btn.firstChild.data='open'
+		}
+		if (text){
+			if (t>ms) text+=' at approx '+(t-ms)+'ms'
+			document.body.appendChild(document.createTextNode(text))
+			document.body.appendChild(document.createElement('br'))
+			return true
+		}
+	}
+
+	function f(){
+		if (T){ clearInterval(T); T=null }
+
+		if (!popup || popup.closed){
+			ms= +new Date()
+			popup= window.open(url,'','width=800,height=600,resizable=yes,scrollbars=yes')
+			btn.firstChild.data='close'
+			setTimeout(	function(){
+						if (!checkState(ms))
+							T=setInterval(	function(){
+										if (checkState(+new Date())){
+											clearInterval(T)
+											T=null
+										}
+									},50)
+					},0)
+		}else{
+			try{ popup.close() }catch(e){alert(e.message||e)}
+			btn.firstChild.data='open'
+		}
+	}
+</script>
+
+<button id=btn onclick=f()>open</button>
+<br>
+<br>

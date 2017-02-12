@@ -7,26 +7,40 @@
 	</style>
 
 	<script>
-		function makeSel(n){
-			if (!makeSel.areyousure && (n>=(document.styleSheets[0].cssText?5000:15000)) && (makeSel.areyousure=true) &&
+		function buildSel(n,newOpts){
+			if (!buildSel.areyousure && !newOpts && (n>=(document.styleSheets[0].cssText?5000:15000)) && (buildSel.areyousure=true) &&
 				!confirm("Are you sure you want to do this?\n"+n+" options could take a long time.")) return
 
-			btn_clear.disabled= btn_update.disabled= btn_replace.disabled= true
+			function btnsDisabled(tf){
+				btn_clear.disabled=
+				btn_update.disabled=
+				btn_replace.disabled=
+				btn_options.disabled= tf
+			}
+
+			btnsDisabled(true)
 			result.innerHTML="*** busy ***"
+
 			function f(){
 				var t0= +new Date().getTime()
 				sel.blur()
 				sel.selectedIndex= 0
-				try{	sel.length= n
-				}catch(e){
-					// n=10001 firefox throws "NotSupportedError: Operation is not supported"
-					result.innerHTML= 'Exception thrown:&nbsp;&nbsp; "'+(e.message||e)+'"'
-					btn_clear.disabled= btn_update.disabled= btn_replace.disabled= false
-					return
-				}
-				for (var i=0; i<n; i++){
-					sel[i].value= "v"+i
-					sel[i].text= "option"+i
+				if (newOpts){
+					sel[0].value= "v0"
+					sel[0].text=  "option0"
+					for (var i=1; i<n; i++)  sel.appendChild(new Option("option"+i, "v"+i))		//new Option(text,value,defaultSelected,selected)
+				}else{
+					try{	sel.length= n
+					}catch(e){
+						// n=10001 firefox throws "NotSupportedError: Operation is not supported"
+						result.innerHTML= 'Exception thrown:&nbsp;&nbsp; "'+(e.message||e)+'"'
+						btnsDisabled(false)
+						return
+					}
+					for (var i=0; i<n; i++){
+						sel[i].value= "v"+i
+						sel[i].text= "option"+i
+					}
 				}
 				sel.selectedIndex= n-1
 				sel.onfocus= function(){
@@ -35,13 +49,24 @@
 					result.innerHTML= "result: "+tf+" ms"
 					if (tf>=1000)
 						result.innerHTML+= "&nbsp;&nbsp; ("+(tf/1000).toFixed(3).replace(/\.000|0*$/," sec)")
-					btn_clear.disabled= btn_update.disabled= btn_replace.disabled= false
+					btnsDisabled(false)
 				}
 				sel.focus()
 			}
 			if (window.requestAnimationFrame)
 				requestAnimationFrame(function(){requestAnimationFrame(f)})
 			else	setTimeout(f,0)
+		}
+	</script>
+
+	<script>
+		function getInput(){
+			return input.value= +input.value.match(/^\s*(\d*)/)[1] || 1
+		}
+		function newSel(){
+			sel.parentNode.replaceChild(sel.cloneNode(false),sel)
+			sel.length= 1
+			sel[0].text="new select"
 		}
 	</script>
 
@@ -53,23 +78,26 @@
 	<p>
 		<button	id=btn_clear
 			style=margin-left:0em
-			onclick="makeSel(input.value=1)">
+			onclick="buildSel(input.value=1)">
 			clear options
 		</button>
 
 		<button	id=btn_update
 			style=margin-left:2em
-			onclick="makeSel(input.value=+input.value.match(/^\s*(\d*)/)[1]||1)">
+			onclick="buildSel(getInput())">
 			update options
 		</button>
 
 		<button	id=btn_replace
 			style=margin-left:2em
-			onclick="sel.parentNode.replaceChild(sel.cloneNode(false),sel)
-				sel.length=1
-				sel[0].text='new select'
-				btn_update.click()">
+			onclick="newSel(); buildSel(getInput())">
 			replace select
+		</button>
+
+		<button	id=btn_options
+			style=margin-left:2em
+			onclick="newSel(); buildSel(getInput(),true)">
+			"new Option()" loop
 		</button>
 
 		<span	id=result

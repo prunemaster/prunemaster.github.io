@@ -3,10 +3,20 @@
 	<title>select.option</title>
 
 	<style>
-		* {font-family:'Segoe UI',sans-serif; white-space:nowrap}
+		      * {font-family:'Segoe UI',sans-serif; white-space:nowrap}
+		   .zed { display:none }
+		.inline { display:inline; display:inline-block }
 	</style>
 
 	<script>
+		onload= function(){
+			if (location.protocol=="file:" || location.search.toUpperCase()=="?HTML"){
+				div_HTML.className="inline"
+				btn_clear.innerHTML= "select.length=1"
+				btn_update.innerHTML="select.length=n"
+			}
+		}
+
 		function buildSel(n,newOpts){
 			if (!buildSel.areyousure && !newOpts && (n>=(document.styleSheets[0].cssText?5000:15000)) && (buildSel.areyousure=true) &&
 				!confirm("Are you sure you want to do this?\n"+n+" options could take a long time.")) return
@@ -15,7 +25,10 @@
 				btn_clear.disabled=
 				btn_update.disabled=
 				btn_replace.disabled=
-				btn_options.disabled= tf
+				btn_options.disabled=
+				btn_IHTML.disabled=
+				btn_OHTML.disabled=
+				tf
 			}
 
 			btnsDisabled(true)
@@ -25,10 +38,31 @@
 				var t0= +new Date().getTime()
 				sel.blur()
 				sel.selectedIndex= 0
-				if (newOpts){
+
+				/*********************
+				* new Options() loop *
+				*********************/
+				if (newOpts=="new Option()"){
 					sel[0].value= "v0"
 					sel[0].text=  "option0"
 					for (var i=1; i<n; i++)  sel.appendChild(new Option("option"+i, "v"+i))		//new Option(text,value,defaultSelected,selected)
+				/*****************
+				* innerHTML loop *
+				*****************/
+				}else if (newOpts=="innerHTML"){
+					for (var i=0, h=""; i<n; i++) h+="<option value=v"+i+">option"+i
+					sel.innerHTML= h
+				/*****************
+				* outerHTML loop *
+				*****************/
+				}else if (newOpts=="outerHTML"){
+					var h= sel.outerHTML.match(/<.*?>/)
+					for (var i=0; i<n; i++) h+="<option value=v"+i+">option"+i
+					h+= "</select>"
+					sel.outerHTML= h
+				/***************
+				* sel.length=n *
+				***************/
 				}else{
 					try{	sel.length= n
 					}catch(e){
@@ -96,9 +130,24 @@
 
 		<button	id=btn_options
 			style=margin-left:2em
-			onclick="newSel(); buildSel(getInput(),true)">
+			onclick="newSel(); buildSel(getInput(),'new Option()')">
 			"new Option()" loop
 		</button>
+
+		<span id=div_HTML class=zed>
+
+			<button	id=btn_IHTML
+				style=margin-left:2em
+				onclick="buildSel(getInput(),'innerHTML')">
+				innerHTML loop
+			</button>
+
+			<button	id=btn_OHTML
+				style=margin-left:2em
+				onclick="buildSel(getInput(),'outerHTML')">
+				outerHTML loop
+			</button>
+		</span>
 
 		<span	id=result
 			style=margin-left:2em>

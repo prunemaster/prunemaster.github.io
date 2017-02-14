@@ -11,7 +11,7 @@
 	<script>
 		onload= function(){
 			if (location.protocol=="file:" || location.search.toUpperCase()=="?HTML"){
-				div_HTML.className="inline"
+				span_HTML.className="inline"
 				btn_clear.innerHTML= "select.length=1"
 				btn_update.innerHTML="select.length=n"
 			}
@@ -134,7 +134,7 @@
 			"new Option()" loop
 		</button>
 
-		<span id=div_HTML class=zed>
+		<span id=span_HTML class=zed>
 
 			<button	id=btn_IHTML
 				style=margin-left:2em

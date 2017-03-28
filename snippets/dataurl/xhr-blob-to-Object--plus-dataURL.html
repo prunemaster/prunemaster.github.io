@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> xhr blob to object </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<style>
+		#contentDiv {	height:1000px;
+				width:1000px;
+				overflow:visible;	/* how come auto makes scrollbar here? */
+				box-sizing:content-box;
+				display:none;
+		}
+		object,embed {	height:100%;
+				width:100%;
+				box-sizing:border-box;
+		}
+		#contentDiv, object,embed {
+				margin:0;
+				padding:0;
+				border:0;
+		}
+		#prog {		display:none;
+				margin-left:2em;
+		}
+	</style>
+
+	<script>
+			var embedTest= (location.search.toUpperCase()=="?EMBEDTEST")
+
+			/*****************************************************************
+			*                                                                *
+			*  append   ? other valid and invalid urls to see what happens   *
+			*                                                                *
+			*****************************************************************/
+
+			var defaultURL=	(!embedTest && (/\??\s*(\S*)/).exec(decodeURIComponent(location.search))[1]) || 'working_draft_ecma-262_edition_6_02-12-15.pdf'
+
+				// http://wiki.ecmascript.org/lib/exe/fetch.php?id=harmony%3Aspecification_drafts&cache=cache&media=harmony:working_draft_ecma-262_edition_6_02-12-15.pdf
+
+
+		onload= function(){
+
+			bdbtn.checked= bdbtn.chkd= true						// true=blobURL  false=dataURL
+
+			bdbtn.onclick= function(){ bdbtn.checked= bdbtn.chkd= !bdbtn.chkd }
+		}
+
+
+		function blobToObject(){
+
+			btn.onclick= null
+			bdbtn.commit= bdbtn.chkd
+
+			url= prompt( "Enter a url", defaultURL )
+
+			if (url===undefined) url=defaultURL			// metroIE returns undefined
+			else url=(url||"").match(/^\s*(\S*)/)[1]		// null means user canceled.  else trim it.
+
+			if (url) getBlob( url, callback )
+			else btn.onclick= blobToObject
+		}
+
+		function callback(XHRresp){
+
+				function cb( bdURL, bdDispURL, bdType ) {
+
+					var o= document.createElement("object")
+					o.innerHTML= 'object source:&nbsp; '+url+'<br>object '+bdType+':&nbsp; '+bdDispURL+
+							'<br>(if you see this, the test failed)'
+					try{	if (embedTest) throw({name:"EMBED", message:"TEST"})
+						o.data= bdURL }
+					catch(e){ if (confirm(	"object.data="+bdType+" threw "+e.name+" "+e.message+
+								"\n\n"+
+								"Would you like to try an <embed> instead?" ))
+							try{	var e= document.createElement("embed")
+								e.src= bdURL
+								contentDiv.appendChild(e) }
+							catch(f){ alert( "embed.src="+bdType+" threw "+f.name+" "+f.message ) } }
+					if (o.data) contentDiv.appendChild(o)					
+				}
+
+			if (XHRresp) {
+					if (bdbtn.commit) {				// bdbtn.commit:   true=blobURL   false=dataURL
+						var blobURL= URL.createObjectURL(XHRresp)
+						statusDiv.innerHTML+= '<br><br><u>blobURL</u>:&nbsp;&nbsp;' +blobURL+ '<br>'
+						contentDiv.style.display="block"
+						cb( blobURL, blobURL, "blobURL" )
+						btn.onclick= blobToObject }
+
+					else {	var F= new FileReader()
+						F.onload= function(){	var dispURL= F.result.match(/^data.*?,/i)[0] +"..."
+									statusDiv.innerHTML+= '<br><br><u>dataURL</u>:&nbsp;&nbsp;' +dispURL+ '<br>'
+									contentDiv.style.display="block"
+									cb( F.result, dispURL, "dataURL" )
+									btn.onclick= blobToObject }
+						F.readAsDataURL(XHRresp) }
+			}
+			else	btn.onclick= blobToObject
+		}
+
+		function getBlob( url,callback ){
+
+			var timeout=10000, failsafe=timeout+1000, timerID=null;
+
+			prog.removeAttribute("value")
+			prog.innerHTML="please wait"
+			prog.style.display="inline-block"
+
+			contentDiv.innerHTML= ""
+			statusDiv.innerHTML = '<u>XHR url</u>:&nbsp;&nbsp;' +url+ '<br>'
+
+			try{	var xhr = new XMLHttpRequest()
+				xhr.open('GET', url, true)
+				xhr.responseType = 'blob'
+				xhr.onload = function(){	if (typeof(Blob) == 'undefined') {	done(	'xhr.status='+xhr.status+
+														'&nbsp;&nbsp;&bull;&nbsp;&nbsp;'+
+														'xhr.responseText.length='+xhr.responseText.length )
+													callback( null )
+													return }
+								done(	'xhr.status=' +xhr.status +
+									'&nbsp;&nbsp;&bull;&nbsp;&nbsp;xhr.response.size=' +xhr.response.size +
+									'&nbsp;&nbsp;&bull;&nbsp;&nbsp;xhr.response.type=' + xhr.response.type )
+
+							//	if (xhr.response.size && (/(^text\/)|(\/xml$)/i).test(xhr.response.type)){
+							//		document.body.appendChild( document.createElement("br") )
+							//		var F=  new FileReader()
+							//		F.onload= function(){	var ta= document.createElement("textarea")
+							//					ta.rows= 10
+							//					ta.cols= 50
+							//					ta.wrap= "off"
+							//					ta.style.overflow= "auto"
+							//					document.body.appendChild( ta ).innerHTML= F.result }
+							//		F.readAsText( xhr.response ) }
+							//	else if (xhr.response.size && (/^image\//i).test(xhr.response.type)){
+							//		document.body.appendChild( document.createElement("br") )
+							//		document.body.appendChild( document.createElement("img") ).src= URL.createObjectURL(xhr.response) }
+
+								if (prog.getAttribute("value")==null){			// avoid leaving in animated "indeterminate" state.  (chrome)
+									if (xhr.status==200)	prog.value= 1		//
+									else			prog.value= 0 }		// otherwise, leave alone.  should be 1 now, but would be interesting if otherwise.
+
+								if (xhr.status==200)	callback( xhr.response )
+								else			callback( null )
+								}
+
+				xhr.onerror = function(e){ fail( 'xhr.onerror:&nbsp;&nbsp;' +((e instanceof ProgressEvent)?(e.toString()+ '&nbsp;&bull;&nbsp;e.type==' +e.type):(e.message||e)) ) }
+
+				// xhr.timeout = timeout
+				// xhr.ontimeout = function(e){ fail( 'xhr.ontimeout:&nbsp;&nbsp;' +((e instanceof ProgressEvent)?(e.toString()+ '&nbsp;&bull;&nbsp;e.type==' +e.type):(e.message||e)) ) }
+				// don't use xhr.timeout.  no way to predict slow downloads (like the default 15MB pdf here).  instead monitor with ProgressEvent (below).
+				// IE9 no ProgressEvent.  don't set timeout.  don't worry be happy.
+
+				if ((typeof ProgressEvent) != 'undefined')
+				timerID = setTimeout( function(){ fail('Timeout. No Response.')},failsafe )
+				xhr.onprogress= function(evt){  if (evt.total) prog.value=(evt.loaded/evt.total)
+								if (evt.loaded){ clearTimeout(timerID); timerID=setTimeout( function(){fail('Timeout')},failsafe) }}
+				xhr.send() }
+
+			catch(e){ fail( 'Exception thrown:'+
+					'&nbsp;&nbsp;e.name==' +(e.name||((typeof(e.name)=="string")?('""'):(typeof(e.name))))+
+					'&nbsp;&nbsp;e.message==' +(e.message||((typeof(e.message)=="string")?('""'):(typeof(e.message)))) )}
+
+			function fail( msg ){ try{xhr.abort()}catch(e){}; if (prog.getAttribute("value")==null) prog.value=0; done( msg ); callback(null) }
+
+			function done( msg ){ clearTimeout(timerID); prog.innerHTML=""; statusDiv.innerHTML += '<br><u>Result</u>:&nbsp;&nbsp;' + msg }
+		}
+	</script>
+</head>
+<body>
+	<button id=btn onclick=blobToObject()>get file</button>
+		&nbsp;&nbsp;<input id=bdbtn type=radio title="on:  blobURL&#x0A;off:  dataURL">
+		&nbsp;&nbsp;<progress id=prog></progress>
+	<br>
+	<br>
+	<div id=statusDiv></div>
+	<br>
+	<br>
+	<div id=contentDiv></div>
+</body>
+</html>

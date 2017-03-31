@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> localStorage test nested in iframe </title>
+	<meta charset=UTF-8>
+
+	<!-- ========================================================= -->
+	<!--                                                           -->
+	<!-- https://connect.microsoft.com/IE/Feedback/Details/2026741 -->
+	<!--                                                           -->
+	<!-- ========================================================= -->
+
+	<style type=text/css>
+		      * { font-family:'Segoe UI',sans-serif; font-size:12pt; border:0;margin:0;padding:0 }
+		    div { margin:1em }
+		.iframe { width:600px;height:400px; border:1px solid dimgray; position:relative }
+		 iframe { width:100%;height:100% }
+		      p { position:absolute; width:100%; bottom:-0.5em; text-align:center }
+		   span { background-color:white; color:gray; padding:1em }
+		 .links { margin-top:4em }
+	</style>
+	<script>
+		onbeforeunload= function(){/*lucky guess fix for Chrome*/}
+	</script>
+</head>
+<body>
+	<div class=iframe>
+		<iframe src=localStorage-test.html></iframe>
+		<p><span>(iframe)</span></p>
+	</div>
+
+	<div class=links>
+		&bull; <a href=localStorage-test.html target=_blank>localStorage-test.html</a>
+		<br>
+		&bull; <a href=localStorage-test--in-iframe.html target=_blank>localStorage-test--in-iframe.html</a>
+	</div>
+</body>
+</html>

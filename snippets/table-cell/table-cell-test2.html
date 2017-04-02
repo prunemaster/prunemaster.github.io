@@ -1,0 +1,121 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>test</title>
+
+	<!-- ==================================================================================== -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/64ac7992-7bce-4c81-b525-38824a4d65a0/ -->
+	<!-- css-rev-slider-slideshow-displaced-in-microsoft-edge                                 -->
+	<!--                                                                                      -->
+	<!-- http://freightplus.com/beta/                                                         -->
+	<!-- http://test.doig.com.au/fp-home.html                                                 -->
+	<!-- ==================================================================================== -->
+
+	<style>
+		.TABLE { display:table; width:100%; background:mediumaquamarine;  padding:0 }
+		.TR { display:table-row; width:100% }
+		.TD { display:table-cell }
+
+		#divR { width:256px; background:plum; position:relative }
+		#divL { background:lightsteelblue }
+
+		#p { text-align:center; padding:1em }
+
+		.IMG { width:100% }
+		.BLOCK { display:block }		/* image default is display:inline-block */
+		.MID { vertical-align:middle }
+		.FLOAT { float:right }
+		.ABS { position:absolute }
+		#divR.EXPANDO { min-width:150px; width:33%; max-width:400px }
+		#divL.SHRINKO { min-width:150px }
+
+		td { text-align:right }
+		td[id$=W] { padding-left:0.75em }
+		td[id$=H] { min-width:3.5em }
+		td:first-child { padding-right:0.5em }
+		td.pad { width:2.5em; min-width:1em }
+
+		.nowrap { white-space:nowrap }
+		* { font-family:'Segoe UI',sans-serif; font-size:12pt }
+	</style>
+
+	<style id=mediaEXPANDO media=(min-width:1200px) onload="this.disabled=true">
+		#divR.EXPANDO { width:400px }
+	</style>
+
+	<script>
+		onload= function(){
+			for (var i=0, list=document.querySelectorAll('input[type=checkbox]'), n=list.length; i<n; i++)
+				list[i].checked= (list[i].getAttribute('checked')!=null)
+			onresize= showStat
+			showStat()
+		}
+		function showStat(){
+			statusLH.textContent= getComputedStyle(divL).height; statusLW.textContent= getComputedStyle(divL).width
+			statusRH.textContent= getComputedStyle(divR).height; statusRW.textContent= getComputedStyle(divR).width
+		}
+	</script>
+
+	<!-- BUGNOTE  need to prefix "window.img" in inline handlers below for Chrome -->
+
+	<div class=nowrap>
+		<input type=checkbox onchange="window.img.classList.toggle('IMG'); showStat()"> Set image width to cell width
+		<br>
+		<input type=checkbox onchange="window.img.classList.toggle('BLOCK'); showStat()"> Set image to 'display:block'
+		<br>
+		<input type=checkbox onchange="divL.classList.toggle('SHRINKO'); showStat()"> Set left cell width to min=150px
+		<br>
+		<input type=checkbox onchange="divR.classList.toggle('EXPANDO'); showStat()"> Set right cell width to min=150px &lt; 33% &lt; max=400px &rtrif;&rtrif;&rtrif;
+		<br>
+		<input type=checkbox onchange="mediaEXPANDO.disabled=!this.checked; showStat()"> &rtrif;&rtrif;&rtrif; max-width doesn't work.  fix it with MediaQuery.
+		<br>
+		<input type=checkbox onchange="divR.classList.toggle('FLOAT'); showStat()"> Set right cell to 'float:right'
+		<br>
+		<input type=checkbox checked onchange="divR.classList.toggle('MID'); showStat()"> Set right cell to 'vertical-align:middle'
+		<br>
+		<input type=checkbox onchange="p.classList.toggle('ABS'); showStat()"> Set hello to 'position:absolute'
+		<br>
+		<input type=checkbox onchange="if (this.checked){
+						div1.className=''; div2.className='TABLE'
+						}else{
+						div1.className='TABLE'; div2.className='TR'
+						}; showStat()"> Don't use 'table-row' (just 'table' and 'table-cell')
+		<br>
+		<input type=checkbox onchange="if (this.checked)
+						divL.insertBefore(zed.firstElementChild.cloneNode(true),window.img)
+						else divL.removeChild(divL.firstElementChild)
+						showStat()"> Insert list before image
+		<br>
+		<input type=checkbox onchange="if (this.checked)
+						divL.appendChild(zed.firstElementChild.cloneNode(true))
+						else divL.removeChild(divL.lastChild)
+						showStat()"> Append list after image
+		<br>
+		<br>
+		<table>
+			 <tr><td>Left cell computed height:<td id=statusLH>  <td class=pad>  <td>width:<td id=statusLW>
+			<tr><td>Right cell computed height:<td id=statusRH>  <td class=pad>  <td>width:<td id=statusRW>
+		</table>
+	</div>
+	<br>
+	<br>
+	<div id=zed style=display:none>
+		<ul>
+			<li>list item 1
+			<li>list item 2
+			<li>list item 3
+		</ul>
+	</div>
+
+	<!-- ================(demo divs)======================= -->
+
+	<div id=div1 class=TABLE>
+		<div id=div2 class=TR>
+			<div id=divL class=TD>
+				<img id=img alt=spam src=spam.png>
+			</div>
+
+			<div id=divR class="TD MID">
+				<p id=p> hello </p>
+			</div>
+		</div>
+	</div>

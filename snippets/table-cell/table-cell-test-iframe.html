@@ -1,0 +1,107 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>test</title>
+
+	<!-- ==================================================================================== -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/64ac7992-7bce-4c81-b525-38824a4d65a0/ -->
+	<!-- css-rev-slider-slideshow-displaced-in-microsoft-edge                                 -->
+	<!--                                                                                      -->
+	<!-- http://freightplus.com/beta/                                                         -->
+	<!-- http://test.doig.com.au/fp-home.html                                                 -->
+	<!--                                                                                      -->
+	<!-- ==============================                                                       -->
+	<!-- Aspect-Ratio = width / height                                                        -->
+	<!-- A= left aspect-ratio                                                                 -->
+	<!-- B= right aspect-ratio                                                                -->
+	<!--                                                                                      -->
+	<!-- formula to maintain left+right aspect-ratios in divL { width:W % }                   -->
+	<!-- W= 100*A/(A+B)                                                                       -->
+	<!--                                                                                      -->
+	<!-- ==============================                                                       -->
+	<!--                                                                                      -->
+	<!-- formula to compute aspect-ratio "B" for two stacked images in divR                   -->
+	<!-- image1 dimensions  W1 x H1                                                           -->
+	<!-- image2 dimensions  W2 x H2                                                           -->
+	<!--                                                                                      -->
+	<!-- F= W1/W2                                                                             -->
+	<!-- B= W1/(H1+F*H2)                                                                      -->
+	<!--                                                                                      -->
+	<!-- ==============================                                                       -->
+	<!--                                                                                      -->
+	<!-- iframes are a little tricky.                                                         -->
+	<!--                                                                                      -->
+	<!-- an img element maintains its aspect-ratio when only its width is styled.             -->
+	<!-- by styling its width:100% (column width) the height automatically updates.           -->
+	<!--                                                                                      -->
+	<!-- iframes begin with default size 300x150.                                             -->
+	<!-- BOTH dimensions need to be styled.                                                   -->
+	<!--                                                                                      -->
+	<!-- STRATEGY 1 - DOESN'T WORK WITH ANY BROWSER                                           -->
+	<!-- one strategy is to peg its width:100%                                                -->
+	<!-- set its height {height:H%} by its percentage of the stacked items in divR            -->
+	<!-- H= 100*H1/(H1+F*H2)                                                                  -->
+	<!--                                                                                      -->
+	<!-- STRATEGY 2                                                                           -->
+	<!-- another strategy is to use a placeholder img with desired iframe aspect-ratio,       -->
+	<!-- or better yet, use an empty canvas element.  it maintains aspect just like an img,   -->
+	<!-- wrap it with a div  (position:relative, serves as a bounding box),                   -->
+	<!-- position:absolute the iframe inside that same wrapper div,                           -->
+	<!-- set iframe {width:100%; height:100%}   (the div, dummy img's dimensions)             -->
+	<!-- this is easier than the first way.  no H computation needs to be done.               -->
+	<!--                                                                                      -->
+	<!-- ==================================================================================== -->
+
+	<style>
+		.TABLE { display:table; width:100%; background:mediumaquamarine;  padding:0 }
+		.TR { display:table-row; width:100% }
+		.TD { display:table-cell; vertical-align:top }
+		.IMG { width:100%; display:block }
+
+		#divR { background:plum }
+		#divL { background:lightsteelblue; width:84.07049% }
+
+		.REL { position:relative }
+		.ABS { position:absolute }
+		.HID { visibility:hidden }
+		.STRATEGY1 { width:100%; height:77.52809%; border:0 }
+		.IFRAME { width:100%; height:100%; top:0; left:0; border:0 }
+	</style>
+
+	<script>
+		var fill= location.protocol=="file:" || location.search.toUpperCase()=="?FILL"
+
+		onload= function(){
+			/****************************************************
+			*                                                   *
+			*  set iframe.img CSS to {width:100%; height:100%}  *
+			*                                                   *
+			****************************************************/
+			if (fill){
+				var s= frames[0].document.createElement("style")
+				s.textContent="html,body,img { width:100%;height:100%; border:0;margin:0;padding:0 }"
+				frames[0].document.head.appendChild(s)
+			}
+		}
+	</script>
+
+	<!-- ================(demo divs)======================= -->
+
+	<div id=div1 class=TABLE>
+		<div id=div2 class=TR>
+			<div id=divL class=TD>
+				<img class=IMG alt=concord src=concord.png>			<!-- 491x300 -->
+			</div>
+
+			<div id=divR class=TD>
+
+			   <!--	<iframe class="STRATEGY1" src=cone3.png></iframe> -->		<!-- WONT WORK -->
+
+				<div class="IMG REL">
+					<canvas class="IMG HID" width=150 height=375></canvas>
+					<iframe class="IFRAME ABS" src=cone3.png></iframe>	<!-- 150x375 -->
+				</div>
+
+				<img class=IMG alt=grapes src=grapes.png>			<!-- 414x300 -->
+			</div>
+		</div>
+	</div>

@@ -44,6 +44,7 @@
 	<!-- STRATEGY 2                                                                           -->
 	<!-- another strategy is to use a placeholder img with desired iframe aspect-ratio,       -->
 	<!-- or better yet, use an empty canvas element.  it maintains aspect just like an img,   -->
+	<!-- ...except for IE < IE11.  have to use img with IE10.  durn.                          -->
 	<!-- wrap it with a div  (position:relative, serves as a bounding box),                   -->
 	<!-- position:absolute the iframe inside that same wrapper div,                           -->
 	<!-- set iframe {width:100%; height:100%}   (the div, dummy img's dimensions)             -->
@@ -81,6 +82,13 @@
 				s.textContent="html,body,img { width:100%;height:100%; border:0;margin:0;padding:0 }"
 				frames[0].document.head.appendChild(s)
 			}
+			/****************************************************
+			*                                                   *
+			*  IE10 canvas trick doesn't work, use dummy png    *
+			*                                                   *
+			****************************************************/
+			if (window.ActiveXObject)
+				document.querySelector("canvas").outerHTML= "<img class=IMG src=blank-150x375.png>"
 		}
 	</script>
 

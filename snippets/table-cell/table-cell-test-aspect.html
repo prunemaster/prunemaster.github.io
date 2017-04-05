@@ -8,17 +8,25 @@
 	<!--                                                                                      -->
 	<!-- http://freightplus.com/beta/                                                         -->
 	<!-- http://test.doig.com.au/fp-home.html                                                 -->
+	<!--                                                                                      -->
+	<!-- ==============================                                                       -->
+	<!-- Aspect-Ratio = width / height                                                        -->
+	<!-- A= left aspect-ratio                                                                 -->
+	<!-- B= right aspect-ratio                                                                -->
+	<!--                                                                                      -->
+	<!-- formula to maintain left+right aspect-ratios in divL { width:W % }                   -->
+	<!-- W= 100*A/(A+B)                                                                       -->
+	<!--                                                                                      -->
 	<!-- ==================================================================================== -->
 
 	<style>
 		.TABLE { display:table; width:100%; background:mediumaquamarine;  padding:0 }
 		.TR { display:table-row; width:100% }
-		.TD { display:table-cell }
-		.IMG { width:100% }
+		.TD { display:table-cell; vertical-align:top }
+		.IMG { width:100%; display:block }
 
 		#divR { background:plum }
-		#divL { background:lightsteelblue; width:80.36% }
-
+		#divL { background:lightsteelblue; width:80.315525% }
 	</style>
 
 	<!-- ================(demo divs)======================= -->

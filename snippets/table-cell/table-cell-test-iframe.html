@@ -71,7 +71,27 @@
 	<script>
 		var fill= location.protocol=="file:" || location.search.toUpperCase()=="?FILL"
 
+		function IE8fix(){
+			IE8fix= function(f){
+				if (f.readyState=="complete"){
+					var s= frames[0].document.createElement("style")
+					frames[0].document.getElementsByTagName("head")[0].appendChild(s)
+					s.styleSheet.cssText="html,body" + (fill?",img":"") +
+						"{ width:100%;height:100%; border:0;margin:0;padding:0; background:transparent }"
+				}
+			}
+			document.getElementsByTagName("canvas")[0].outerHTML= "<img class=IMG src=blank_500x448.png>"
+			frames[0].frameElement.outerHTML=
+				'<iframe class="IFRAME ABS" '+ (fill?"scrolling=no ":"") + "frameBorder=0 " +
+				'allowTransparency=true onreadystatechange=IE8fix(this) src=eggs.png></iframe>'	// 500x448
+			divL.style.width="72.63756%"
+		}
+
 		onload= function(){
+
+			if (!frames[0].document.head){ IE8fix(); return }
+
+
 			/****************************************************
 			*                                                   *
 			*  set iframe.img CSS to {width:100%; height:100%}  *
@@ -79,7 +99,7 @@
 			****************************************************/
 			if (fill){
 				var s= frames[0].document.createElement("style")
-				s.textContent="html,body,img { width:100%;height:100%; border:0;margin:0;padding:0 }"
+				s.textContent="html,body,img { width:100%;height:100%; border:0;margin:0;padding:0; overflow:hidden }"	// body:overflow:hidden for IE9mode emulation
 				frames[0].document.head.appendChild(s)
 			}
 			/****************************************************
@@ -88,7 +108,7 @@
 			*                                                   *
 			****************************************************/
 			if (window.ActiveXObject)
-				document.querySelector("canvas").outerHTML= "<img class=IMG src=blank-150x375.png>"
+				 document.querySelector("canvas").outerHTML= "<img class=IMG src=blank-150x375.png>"
 		}
 	</script>
 
@@ -97,7 +117,7 @@
 	<div id=div1 class=TABLE>
 		<div id=div2 class=TR>
 			<div id=divL class=TD>
-				<img class=IMG alt=concord src=concord.png>			<!-- 491x300 -->
+				<img class=IMG alt=concord src=concord.png>			<!-- 600x366 -->
 			</div>
 
 			<div id=divR class=TD>
@@ -109,7 +129,7 @@
 					<iframe class="IFRAME ABS" src=cone3.png></iframe>	<!-- 150x375 -->
 				</div>
 
-				<img class=IMG alt=grapes src=grapes.png>			<!-- 414x300 -->
+				<img class=IMG alt=grapes src=grapes.png>			<!-- 600x434 -->
 			</div>
 		</div>
 	</div>

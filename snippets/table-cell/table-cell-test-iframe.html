@@ -85,6 +85,13 @@
 				'<iframe class="IFRAME ABS" '+ (fill?"scrolling=no ":"") + "frameBorder=0 " +
 				'allowTransparency=true onreadystatechange=IE8fix(this) src=eggs.png></iframe>'	// 500x448
 			divL.style.width="72.63756%"
+
+			if (divL.currentStyle.display=="block"){	//IE7mode  (no table-cell)
+				divR.style.width="27.36244%"
+				divL.style.float="left"
+				divR.style.float="right"
+				document.images[2].style.float="right"
+			}
 		}
 
 		onload= function(){

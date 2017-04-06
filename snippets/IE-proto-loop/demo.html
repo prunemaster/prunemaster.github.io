@@ -1,0 +1,50 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> IE11 stackoverflow </title>
+
+	<!-- ====================================================================================  -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/49e8b951-75e4-4243-856a-039cee622464/  -->
+	<!-- objectdefineproperty-recursionbug                                                     -->
+	<!-- ===================================================================================== -->
+
+<script>
+	function /*( constructor )*/ myProp(elt){
+		colors= [ "crimson", "mediumseagreen", "royalblue" ]
+		this.count= 0
+		this.type= ({}).toString.call(elt).match(/(\S*)\s*\]/)[1]
+		this._refresh= function(){ elt.style.color=colors[++this.count%colors.length]; return this }
+	}
+
+	var myPropName="Kmart92", IEFIX= location.search.toUpperCase()=="?IEFIX"
+
+	Object.defineProperty( Element.prototype, myPropName, {
+		get: function(){
+			var tmpProp= new myProp(this)
+			var psave= this.__proto__
+			if (IEFIX) this.__proto__= {}
+			Object.defineProperty( this, myPropName, {
+				get: function(){ return tmpProp._refresh() }
+			})
+			this.__proto__= psave
+			return this[myPropName]
+		},
+		enumerable: true,
+		configurable: true
+	})
+
+	function f(elt){
+		try{	var cells= elt.parentNode.parentNode.cells, obj= elt[myPropName]
+			cells[1].textContent= obj.count
+			cells[2].textContent= obj.type
+
+		}catch(e){ cells[1].textContent= e.message||e }
+	}
+</script>
+
+<style> td:first-child+td { padding-left:1em; padding-right:0.5em; text-align:right } </style>
+
+<table>
+	<tr><td> <button  onclick=f(this)  >click</button>           <td><td>
+	<tr><td>  <input  onclick=f(this)  type=button value=click>  <td><td>
+	<tr><td>      <a  onclick=f(this)  >[ click ]</a>            <td><td>
+</table>

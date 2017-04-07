@@ -1,6 +1,6 @@
 <!doctype html>
 	<meta charset=utf-8>
-	<title> IE11 stackoverflow </title>
+	<title> IE11 proto stackcrash </title>
 
 	<!-- ====================================================================================  -->
 	<!-- https://social.msdn.microsoft.com/Forums/en-US/49e8b951-75e4-4243-856a-039cee622464/  -->
@@ -8,6 +8,10 @@
 	<!-- ===================================================================================== -->
 
 <script>
+	var IEFIX=  location.search.toUpperCase()=="?IEFIX"		// IE11 {}
+	var IE_FIX= location.search.toUpperCase()=="?IE_FIX"		// IE11 null
+	var IE9FIX= location.search.toUpperCase()=="?IE9FIX"		// IE11,IE10,IE9
+	
 	function /*( constructor )*/ myProp(elt){
 		colors= [ "crimson", "mediumseagreen", "royalblue" ]
 		this.count= 0
@@ -15,17 +19,30 @@
 		this._refresh= function(){ elt.style.color=colors[++this.count%colors.length]; return this }
 	}
 
-	var myPropName="Kmart92", IEFIX= location.search.toUpperCase()=="?IEFIX"
+	var myPropName="Kmart92"
 
 	Object.defineProperty( Element.prototype, myPropName, {
 		get: function(){
 			var tmpProp= new myProp(this)
-			var psave= this.__proto__
-			if (IEFIX) this.__proto__= {}
+
+			if (IEFIX){	var psave= this.__proto__
+					this.__proto__= {}
+			}
+			if (IE_FIX){	var psave= this.__proto__
+					this.__proto__= null
+			}
+			if (IE9FIX){	var descrip= Object.getOwnPropertyDescriptor( Element.prototype, myPropName )
+					delete Element.prototype[myPropName]
+			}
+
 			Object.defineProperty( this, myPropName, {
 				get: function(){ return tmpProp._refresh() }
 			})
-			this.__proto__= psave
+
+			if (IEFIX)	this.__proto__= psave
+			if (IE_FIX)	Object.setPrototypeOf( this, psave )
+			if (IE9FIX)	Object.defineProperty( Element.prototype, myPropName, descrip )
+
 			return this[myPropName]
 		},
 		enumerable: true,
@@ -37,7 +54,7 @@
 			cells[1].textContent= obj.count
 			cells[2].textContent= obj.type
 
-		}catch(e){ cells[1].textContent= e.message||e }
+		}catch(e){ cells[2].textContent= e.message||e }
 	}
 </script>
 

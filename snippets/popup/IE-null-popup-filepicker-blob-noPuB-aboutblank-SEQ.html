@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> IE popup=null local-image BLOB demo </title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- ===================================================== -->
+	<!-- <meta http-equiv="x-ua-compatible" content="IE=edge"> -->
+	<!-- ===================================================== -->
+
+	<!-- ======================================================================= -->
+	<!--                                                                         -->
+	<!--              IE OPENS POPUP OK, BUT RETURNS OBJ=NULL                    -->
+	<!--                                                                         -->  
+	<!--  If IE is launched normally (not elevated Admin)                        -->
+	<!--  And the webpage is in Trusted Sites (Internet Options Security tab)    -->
+	<!--  And the webpage opens a popup cross-site (different domain)            -->
+	<!--  Then                                                                   -->
+	<!--  The popup will open ok, but window.open() returns NULL.                -->
+	<!--                                                                         -->
+	<!--  The popup cannot be closed. (null). Also, if that popup window.name    -->
+	<!--  is used again with window.open(), IE will NOT reload that same         -->
+	<!--  popup window.  A 2nd popup will open instead.  And so on for           -->
+	<!--  the 3rd, 4th,... etc                                                   -->
+	<!--                                                                         -->
+	<!--                                                                         -->
+	<!--  Workarounds.                                                           -->
+	<!--  Oddly, IE behaves "normally" in this circumstance if it is             -->
+	<!--  run as Administrator (instead of normal Standard account).             -->
+	<!--  Or, if Protected Mode is disabled in the regular Internet Zone.        -->
+	<!--  Or even this:  IE behaves "normally" (as Std user) if registry value   -->
+	<!--  HKCU\Software\Microsoft\Internet Explorer\Main DWORD TabProcGrowth=0.  -->
+	<!--  Any of these three ways "solves" the NULL problem.                     -->
+	<!--                                                                         -->
+	<!--  note:  what "normally" means for IE (since at least IE8) is that the   -->
+	<!--  xs popup opens ok, with non-null object returned, and popup.close()    -->
+	<!--  also works ok, but trying to read popup.name throws "Access Denied".   -->
+	<!-- ======================================================================= -->
+	<!--                                                                         -->
+	<!--  Change:  Use filepicker for image|txt|html files, access via Blob.     -->
+	<!--                                                                         -->
+	<!--           (original test above hardcoded Yahoo!.com in popup)           -->
+	<!--                                                                         -->
+	<!--  Result:  Launched from desktop, IE11 popup says bad url.               -->
+	<!--           Launched from internet, IE11 throws Access Denied.            -->
+	<!--                                                                         -->
+	<!--           Firefox Chrome Opera ok.  Except for obnoxious popupblockers. -->
+	<!--                                                                         -->
+	<!-- ======================================================================= -->
+	<!--                                                                         -->
+	<!--  Change:  Now, accept any file type.  Filepicker reports the mime-type  -->
+	<!--           in inPut.files[0].type, which is easily copied and then used  -->
+	<!--           while constructing the Blob.                                  -->
+	<!--                                                                         -->
+	<!--           Also.  If the user submits (types) a http://website into      -->
+	<!--           filepicker, inPut.files[0] ends up referencing a cache object -->
+	<!--           of the website, and it reports a blank mime-type.             -->
+	<!--           inPut.files[0].type=="".                                      -->
+	<!--                                                                         -->
+	<!--           Maybe a better job could be done here sniffing it (eg, maybe  -->
+	<!--           it's a video or something).  But for simplicity, this blank   -->
+	<!--           mime-type is assumed (guessed) to mean a html website, and    -->
+	<!--           "text/html" is fudged in manually into blobURL.  Just so we   -->
+	<!--           can view a cached website, which is kind of nifty.            -->
+	<!--                                                                         -->
+	<!--           As usual, this works with Firefox and Chrome.  Not IE.        -->
+	<!--                                                                         -->
+	<!-- ======================================================================= -->
+	<!--                                                                         -->
+	<!--  Change:  Added radio button option to workaround popup blocker.        -->
+	<!--           (this works, but then the popup doesn't get focus).           -->
+	<!--                                                                         -->
+	<!--           Unchecked.  Works as before.  Popup-blocker gets triggered.   -->
+	<!--           The flow in this case is, the [Open Popup] button.onclick     -->
+	<!--           initiates this sequence then exits:                           -->
+	<!--               filepicker ==> FileReader ==> open(blobURL)               -->
+	<!--           Since open() occurs outside (after) the button.click scope,   -->
+	<!--           it triggers the popup-blocker.                                -->
+	<!--                                                                         -->
+	<!--           Checked.  Avoids the popup-blocker.  In this case, the        -->
+	<!--           button.onclick event invokes open("about:blank").  Since this -->
+	<!--           occurs within the button.onclick, it is not blocked.  Then    -->
+	<!--           this sequence is initiated, and the button.onclick exits.     -->
+	<!--               filepicker ==> FileReader ==> popup.location.href=blobURL -->
+	<!--           So the blank popup window gets populated as a 2nd step.       -->
+	<!--           Thereafter, that same popup window is reused as long as it    -->
+	<!--           remains un-closed.                                            -->
+	<!--                                                                         -->
+	<!--           Unfortunately.  Re-loading the existing popup window via      -->
+	<!--           location.href does NOT give it back its focus.  There seems   -->
+	<!--           to be no way to do so.  Whereas, using open(blobURL) always   -->
+	<!--           gives the popup focus, which is desirable.                    -->
+	<!--                                                                         -->
+	<!--                                                                         -->
+	<!-- ======================================================================= -->
+	<!--                                                                         -->
+	<!--  Added:  URL Query string TRUE/FALSE to override UA-sniff msie=t/f      -->
+	<!--                                                                         -->
+	<!--          true - open about:blank first before launching filepicker      -->
+	<!--          false- launch filepicker before opening about:blank popup      -->
+	<!--                                                                         -->
+	<!--          (only applies when radio-button set to evade popup-blocker)    -->
+	<!-- ======================================================================= -->
+
+
+	<style type="text/css">
+
+		* {
+			font-family:'Segoe UI', Sans-Serif;
+			font-size: 12pt;
+			line-height: 1.25em;
+		}
+		html, body, #viewport {
+			margin: 0;
+			padding: 0;
+		}
+		#viewport {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			min-width: 30em;
+			min-height: 27em;
+			overflow: visible;
+		}
+		.div {
+			display: inline-block;
+			position: absolute;
+		}
+		.center {
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			margin: auto;
+		}
+		#outer {
+			width: 30em;
+			height: 27em;
+			background-color: #e5ecf2;	/* IE8 */
+			background: -webkit-linear-gradient(bottom, rgba(0,64,128,0.175), rgba(0,48,96,0.3));	/* safari */
+			background: linear-gradient(to bottom, rgba(0,48,96,0.3), rgba(0,64,128,0.175));
+			border: 1px solid black;
+			padding: 1em;
+		}
+		#inner {
+			visibility: hidden;		/* until onload */
+			height: auto;			/* until onload */
+			width: auto;			/* until onload */
+			margin: auto;
+			overflow: visible;
+		}
+		#text {
+			display: inline-block;
+			height: auto;			/* until onload */
+			width: 20em;
+			padding-top: 1em;
+			padding-left: 1em;
+		    /*	padding-right: 1em; */		/* nowrap blows right thru it */
+			border: 1px solid black;
+			overflow: auto;
+			background-color: #f2f5f8;	/* IE8 */
+			background-color: rgba(255,255,255,0.75);
+		}
+		.hdr {
+			text-decoration: underline;
+			font-weight: bold;
+		}
+		.nowrap {
+			white-space: nowrap;
+		}
+		#btn1, #btn2 {
+			padding-bottom: .2em;
+			box-shadow: -1px 1px 2px 0 rgba(0,0,0,0.3), 1px 1px 2px 0 rgba(0,0,0,0.3);
+		}
+	</style>
+
+	<!-- ============================================= -->
+
+	<script>
+		var popup    = undefined
+		var blobURL  = null
+		var mimeType = ""
+
+
+		onload=	function() {
+
+			if (typeof(FileReader) != "undefined")
+				var fileReader = new FileReader()
+			else	var fileReader = {}
+
+			closeMsg1.innerHTML    = '&nbsp;<br>&nbsp;<br>'					// center the divs
+			text.style.height      = text.offsetHeight  + "px"				//
+													//
+			inner.style.height     = inner.offsetHeight + "px"				//
+			inner.style.width      = inner.offsetWidth  + "px"				//
+			inner.className        = "center div"						//
+			inner.style.visibility = "visible"						//
+
+			radio.checked = radio.chkd = true						// radiobutton - bullet: open blank popup inside button onclick handler to avoid popup blocker, then use popup.location.href to populate it.
+			radio.onclick = function() { this.checked = this.chkd = !this.chkd }		//               unchecked:  always open( blobURL, "test") for every new file chosen.  not inside button onclick.  thus triggers popup blocker.
+
+			btn1.onclick =	function() {	btn1.blur()
+							if ((typeof(window.URL)  != "undefined") && URL.createObjectURL
+							&&  (typeof(FileReader)  != "undefined")
+							&&  (typeof(ArrayBuffer) != "undefined")) {
+
+								if (fileReader.readyState != FileReader.LOADING) {	// 0-EMPTY 1-LOADING 2-DONE
+															// there is an unlikely window here where the user could click the Open Popup button
+															// to read a new file, while FileReader is still reading previous file (before onload fires).
+															// This check will effectively disable the Open Popup button during that window of time.
+									radio.commit = radio.chkd
+
+									inPut.onchange = function() {					// original code:
+																	//	var x = (/\.(gif|png|jpg|jpeg|bmp|ico)\s*$/i).exec(inPut.value.toLowerCase())
+																	//	if (x)	mimeType = 'image/'+((x[1]=='ico')?'x-icon':x[1])
+																	//	else if	(x = (/\.(txt|htm|html)\s*$/i).exec(inPut.value.toLowerCase()))
+																	//		 mimeType='text/'+((x[1]=='txt')?'plain':'html')
+																	//	if (x)	fileReader.readAsArrayBuffer( inPut.files[0] )
+																	//	else	alert('Please select a valid image, txt, or html file.')
+											if (sequence <= 1) {sequence=1; return}		//==>
+																	//
+											inPut.onchange = null				// dont let onchange fire anymore. (watch out for our own inPut.value="" below)
+																	//
+											mimeType = (inPut.files[0].type||'text/html')	// filepicker gives blank mimetype if user typed http:// url
+											fileReader.readAsArrayBuffer( inPut.files[0] )	// blob the valid mimetype file and trust it's supported
+																	// http:// url case:  try blobbing the cachefile as an html mimetype
+											inPut.value = ""				// clear inPut.value for next time, else re-selecting same filename won't fire onchange
+											}
+																	//==> NOTE!  per W3C, inPut.click() INVOKES filepicker (synchronously?, which FIRES inPut.onchange())
+									var sequence = 0						//==>        www.w3.org/TR/2009/WD-html5-20090423/editing.html#activation
+																	//==>        Firefox appears to invoke it synchronously, immediately, including onchange.
+																	//==>        Chrome appears to queue it til this function exits.
+																	//==>        wrapping with setTimeout seems to eliminate need for sequence var
+																	//
+																	//	var webkit = (/webkit/i).test(navigator.userAgent)
+																	//	var msie   = document.documentMode?true:false
+									if (radio.commit && (!popup || popup.closed)) {			//
+																	//
+										var msie=eval(						  //
+											((/\?(true|false)\s*$|$/i).exec(location.href)[1] // eval: url query string  "TRUE"|"FALSE" else |undefined continues...
+											|| (document.documentMode?"true":"false"))	  //       ...else use docMode test for t/f
+											.toLowerCase() )				  //
+																	//
+										if (msie) {						// IE11: popup *MUST* occur *BEFORE* inPut.click()
+											openPopup('"about:blank"')			//       if after filepicker, popup-blocker will block about:blank
+											setTimeout( function(){inPut.click()},0 ) }	//
+										else {							// Chrome: popup *MUST* occur *AFTER* inPut.click()
+											inPut.click()					//         if before, filepicker dialog never invokes by click() again, wth?
+											openPopup('"about:blank"') }			// FF:  either order ok.  but filepicker before gives popup focus (better)
+									}								//
+									else setTimeout( function(){inPut.click()},0 )			// if not pre-opening blank popup, then delayed click() is best (probably)
+																	//
+									if (++sequence == 2) inPut.onchange()				//==>
+									++sequence							//==>
+								}
+							}
+							else	alert('Sorry, this demo requires HTML5 FileReader and Blob: support')
+					}
+			function openPopup( url$ ) {
+							if (radio.commit && (popup && !popup.closed)) {
+										 	try	{ popup.location.href = eval(url$) }
+											catch(e){ alert('popup.location.href='+url$+' failed.  '+(e.message||e)) } }
+							else {				try	{ popup = open( eval(url$), "test", "height=200,width=400,scrollbars=yes,resizable=yes") }
+											catch(e){ alert('open( '+url$+',"test") failed.  '+(e.message||e)) } }		// IE11 throws Access Denied
+							openMsg1.innerHTML = popup
+							try     { openMsg2.innerHTML = popup.name }
+							catch(e){ openMsg2.innerHTML = 'Error:&nbsp; "'+(e.message||e)+'"&nbsp;' }
+							closeMsg1.innerHTML = ""
+			}
+			fileReader.onload = function() { blobURL= URL.createObjectURL( new Blob( [fileReader.result],{type:mimeType} ))		// new Blob( [array of arrays], { type:mimetype } )
+							 openPopup( "blobURL" ) }
+
+			fileReader.onerror = function() { alert( 'File Error:  '+fileReader.error.name ) }
+
+			btn2.onclick = function() {	btn2.blur()
+							if (typeof(popup) != 'undefined') {								
+								var msg = "", nullcase=false, x=false;
+								if (typeof(popup) == 'null') { msg = 'Popup==null.&nbsp; Trying to close anyway.&nbsp;<br>'; nullcase=true }
+								try { x=popup.closed } catch(e){ if (!nullcase) msg = 'Error occurred checking popup.closed:&nbsp; "'+(e.message||e)+'"&nbsp;<br>' }
+								if (x) { popup=undefined; msg += 'nothing done.&nbsp; popup was already closed.&nbsp;' }
+								else   { try { popup.close(); popup=undefined; msg += (msg?'closed ok anyway':'closed ok') }
+									 catch(e){ msg += 'Error executing popup.close():&nbsp; "'+(e.message||e)+'"&nbsp;' } }
+								closeMsg1.innerHTML = msg
+							}
+							else openMsg1.innerHTML= openMsg2.innerHTML= closeMsg1.innerHTML= ""
+					}
+			}
+	</script>
+</head>
+
+<!-- ===================================================== -->
+
+<body>
+	<input id=inPut type=file name=fileName style=display:none>
+
+	<div id=viewport>
+		<div id=outer class="div center">
+			<div id=inner class=div>
+				<div id=text>
+					<p class=hdr>Open Popup Result</p>
+					<p class=nowrap>Object = <span id=openMsg1></span></p>
+					<p class=nowrap>Name = <span id=openMsg2></span></p>
+					<br>
+					<p class=hdr>Close Popup Result</p>
+					<p class=nowrap>Status = <span id=closeMsg1></span></p>
+				</div>
+				<br>
+				<br>
+				<button id=btn1>Open Popup</button>&nbsp;&nbsp;&nbsp;<button id=btn2>Close Popup</button>&nbsp;&nbsp;<input id=radio type=radio title="open blank window first&#x0A;to avoid popup blocker">
+			</div>
+		</div>
+	</div>
+</body>
+</html>

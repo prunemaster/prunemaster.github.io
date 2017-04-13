@@ -1,0 +1,41 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>opener</title>
+
+	<!-- =========================================================================================== -->
+	<!-- https://social.technet.microsoft.com/Forums/ie/en-US/b64bab0b-c501-49c9-adab-0a59d97b0e76/  -->
+	<!-- how-to-make-windowfocus-works                                                               -->
+	<!-- =========================================================================================== -->
+
+	<script>
+		var popup, T
+
+		function timerOff(){
+			clearTimeout(T)
+			clock.innerHTML=""
+			return popup&&!popup.closed
+		}
+
+		function f(n){
+
+			if (!timerOff()) return
+
+			if (!n)	{ self.click(); setTimeout( function(){popup.focus()},0 ) }
+			else	g()
+
+			function g(){
+				clock.innerHTML= (n?n:"")
+				if (n)	T= setTimeout( function(){g(--n)}, 1000)
+				else	popup.focus()
+			}
+		}
+	</script>
+
+	<style> button{margin-right:1em} p{white-space:nowrap} </style>
+
+	<p>
+	<button onclick="!timerOff()&&(popup=window.open('about:blank'))">open popup</button>
+	<button onclick="timerOff()&&popup.focus()">focus-immed</button>
+	<button onclick="f(0)">focus no-click</button>
+	<button onclick="f(5)">focus-delay5</button>
+	<span id=clock></span>

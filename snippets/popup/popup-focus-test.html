@@ -35,6 +35,9 @@
 		*             Bonus button              *
 		****************************************/
 
+		if (location.search.toUpperCase()=='?BONUS' || location.protocol=='file:')
+			onload= function(){ bb.className="" }
+
 		var B=0
 
 		function b(n){
@@ -44,12 +47,13 @@
 
 					onfocus= function(evt){
 						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally when rapid clicking.  just ignore this event.
-						if (evt) bonus.innerHTML="+"+(++B)
+						if (evt) bonus.innerHTML="+"+(++B)  +" hasFocus="+document.hasFocus()
 						onfocus= null
 						d()
 					}
 
 					{(popup.Function([
+							"self.blur()",
 							"opener.focus()",
 							"clearTimeout(window.T1)",
 							"window.T1=setTimeout(",
@@ -59,7 +63,7 @@
 							"			document.body.style.fontSize=fontsize+'pt'",
 							"			document.body.innerHTML='fail'",
 							"			opener.onfocus()",
-							"		}else document.body.innerHTML='it worked'",
+							"		}else document.body.innerHTML='opener processed a focus event'",
 							"	},0)",
 							"clearTimeout(window.T2)",
 							"window.T2= setTimeout( function(){ document.body.innerHTML='' }, 5000)"
@@ -98,7 +102,7 @@
 	<button onclick="f(5)">focus popup delay5</button>
 	<span id=clock></span>
 
-	<br>
+	<p id=bb class=ZED>
 	<br>
 	Bonus button
 	<br>

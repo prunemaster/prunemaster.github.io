@@ -13,14 +13,15 @@
 		function timerOff(){
 			clearTimeout(T)
 			clock.innerHTML=""
-			return popup&&!popup.closed
+			return popup&&!popup.closed || (B=+(bonus.innerHTML=""))
 		}
 
 		function f(n){
 
 			if (!timerOff()) return
 
-			if (!n)	{ self.click(); setTimeout( function(){popup.focus()},0 ) }
+			if	(n==-2)	setTimeout( function(){ setTimeout(function(){popup.focus()},0) },0)
+			else if	(n==-1)	setTimeout( function(){input.click()},0 )
 			else	g()
 
 			function g(){
@@ -29,13 +30,78 @@
 				else	popup.focus()
 			}
 		}
+
+		/****************************************
+		*             Bonus button              *
+		****************************************/
+
+		var B=0
+
+		function b(n){
+			function c(){
+				onblur= function(){
+					onblur= null
+
+					onfocus= function(evt){
+						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally when rapid clicking.  just ignore this event.
+						if (evt) bonus.innerHTML="+"+(++B)
+						onfocus= null
+						d()
+					}
+
+					{(popup.Function([
+							"opener.focus()",
+							"clearTimeout(window.T1)",
+							"window.T1=setTimeout(",
+							"	function(){",
+							"		if (opener.onfocus){",
+							"			window.fontsize=(window.fontsize||8)+4",
+							"			document.body.style.fontSize=fontsize+'pt'",
+							"			document.body.innerHTML='fail'",
+							"			opener.onfocus()",
+							"		}else document.body.innerHTML='it worked'",
+							"	},0)",
+							"clearTimeout(window.T2)",
+							"window.T2= setTimeout( function(){ document.body.innerHTML='' }, 5000)"
+							].join("\n"))
+					)()}
+				}
+				popup.focus()
+			}
+
+			function d(){
+				if (b.n) b.n--
+				if (b.n) setTimeout( function(){b(b.n)},0 )
+			}
+
+			if (!timerOff()) return b.n=0
+			if (n!=undefined){
+				b.n= n
+				if (n) c()
+			}else{
+				if (b.n) return ++b.n
+				b.n=1
+				c()
+			}
+		}
 	</script>
 
-	<style> button{margin-right:1em} p{white-space:nowrap} </style>
+	<style> button{margin-right:1em} p{white-space:nowrap} .ZED{display:none} </style>
+
+	<input id=input class=ZED onclick="setTimeout( function(){popup.focus()},0 )">
 
 	<p>
 	<button onclick="!timerOff()&&(popup=window.open('about:blank','','width=400,height=400'))">open popup</button>
-	<button onclick="timerOff()&&popup.focus()">focus immed</button>
-	<button onclick="f(0)">focus no-click</button>
-	<button onclick="f(5)">focus delay5</button>
+	<button onclick="timerOff()&&popup.focus()">focus popup immed</button>
+	<button onclick="f(-1)">focus popup indirect</button>
+	<button onclick="f(-2)">focus popup no-click</button>
+	<button onclick="f(5)">focus popup delay5</button>
 	<span id=clock></span>
+
+	<br>
+	<br>
+	Bonus button
+	<br>
+
+	<button onclick="b()">re-focus window</button>
+	<span id=bonus></span>

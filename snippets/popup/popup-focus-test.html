@@ -45,21 +45,37 @@
 
 		var B=0
 
-		function b(n){
+		function b(){
+
+			if (!timerOff()) return b.n=0
+			if (b.n) return ++b.n
+			b.n= 1
+			c()
+
 			function c(){
-				onblur= function(){
+
+				popup.clearTimeout(popup.T1)
+				//onblur= onfocus= function(){}	// better worse or same?
+				//popup.blur()			//
+				//self.focus()			//
+				onblur= d
+				popup.focus()
+
+				function d(){
 					onblur= null
 
 					onfocus= function(evt){
-						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally when rapid clicking.  just ignore this event.
+						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally on when rapid clicking.  just ignore this event.
 						onfocus= null
 						if (evt) bonus.innerHTML="+"+(++B)  +" hasFocus="+document.hasFocus()
-						if (b.n) b.n--
-						if (b.n) setTimeout( function(){b(b.n)},0 )
+						if (!timerOff()) return b.n=0
+						if (--b.n) c()
 					}
 
 					{(popup.Function([
 							"opener.focus()",
+						//	"self.blur()",				// better worse or same?
+						//	"window.open('',opener.name).focus()",	//
 							"clearTimeout(window.T1)",
 							"window.T1=setTimeout(",
 							"	function(){",
@@ -75,17 +91,6 @@
 							].join("\n"))
 					)()}
 				}
-				popup.focus()
-			}
-
-			if (!timerOff()) return b.n=0
-			if (n!=undefined){
-				b.n= n
-				if (n) c()
-			}else{
-				if (b.n) return ++b.n
-				b.n=1
-				c()
 			}
 		}
 	</script>
@@ -95,7 +100,7 @@
 	<input id=input class=ZED onclick="setTimeout( function(){popup.focus()},0 )">
 
 	<p>
-	<button onclick="!timerOff()&&(popup=window.open('about:blank','','width=400,height=400'),BONUS&&window.open('',window.name=Date.now()).focus() )">open popup</button>
+	<button onclick="!timerOff()&&(popup=window.open('about:blank','','width=400,height=400'),BONUS&&self.blur(),BONUS&&window.open('',window.name=Date.now()).focus() )">open popup</button>
 	<button onclick="timerOff()&&popup.focus()">focus popup immed</button>
 	<button onclick="f(-1)">focus popup indirect</button>
 	<button onclick="f(-2)">focus popup no-click</button>
@@ -106,5 +111,6 @@
 	<br>
 	Bonus button
 	<br>
-	<button onclick="b()">re-focus window</button>
+
+	<button onmouseup="b()">re-focus window</button>
 	<span id=bonus></span>

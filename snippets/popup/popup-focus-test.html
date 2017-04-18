@@ -54,18 +54,19 @@
 
 			function c(){
 
+				var RETRY= setTimeout( c,100 )					// sometimes rapid-clicking button will prevent popup.focus()--> blurred state d{}.  restart in that case.
+
 				popup.clearTimeout(popup.T1)
-				//onblur= onfocus= function(){}	// better worse or same?
-				//popup.blur()			//
-				//self.focus()			//
+				{(document.activeElement||self).focus()}
 				onblur= d
 				popup.focus()
 
 				function d(){
 					onblur= null
+					clearTimeout(RETRY)
 
 					onfocus= function(evt){
-						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally on when rapid clicking.  just ignore this event.
+						if (evt&&!evt.timeStamp&&b.n) return		// FIREFOX - timeStamp=0 and b.n=1.  happens occasionally on when rapid clicking.  just ignore this spurious event.
 						onfocus= null
 						if (evt) bonus.innerHTML="+"+(++B)  +" hasFocus="+document.hasFocus()
 						if (!timerOff()) return b.n=0
@@ -74,8 +75,10 @@
 
 					{(popup.Function([
 							"opener.focus()",
-						//	"self.blur()",				// better worse or same?
-						//	"window.open('',opener.name).focus()",	//
+						//	"opener.document.focus&&opener.document.focus()",	// ms-only:  will trigger taskbar needy-state blink
+						//	"{(opener.document.activeElement||opener).focus()}",	//
+						//	"self.blur()",						// better worse or same?
+						//	"window.open('',opener.name).focus()",			//
 							"clearTimeout(window.T1)",
 							"window.T1=setTimeout(",
 							"	function(){",

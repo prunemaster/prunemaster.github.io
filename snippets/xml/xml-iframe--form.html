@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+
+	<title>xml in iframe</title>
+	<meta charset=utf-8>
+	<!-- ===================================================================================== -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/038bdba3-f29b-43b1-ac80-73e204961112/  -->
+	<!-- show-an-xml-file-contents-in-a-html-page-using-iframe                                 -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/477b3f31-554f-4b44-b252-4e824bbef6ca/  -->
+	<!-- micosoft-edge-cannot-read-local-files-with-ajax-method-of-jquery                      -->
+	<!--                                                                                       -->
+	<!-- ===================================================================================== -->
+
+	<style type=text/css>
+		         * { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		      .box { display:inline-block; padding:1em; border:1px solid black }
+		.offscreen { position:absolute; left:-100000px }
+		      .fat { width:99000px; height:1000000px }
+		   .onepix { width:1px; height:1px }
+		 .hardcode { width:640px; height:480px }
+	</style>
+
+	<script src=shrinktofit.js></script>
+	<script>
+		var url= 'test.xml'
+
+		function f(){
+			f= function(){
+				if (window.item && !document.styleSheets[0].ownerNode){						// IE8 and earlier.  xml already pretty-printed in iframe.
+					if (window.shrinktofit) shrinktofit()
+					else I.frameElement.className="hardcode"
+				}else{												// IE9+ and rest.  transcribe xml node-text into PRE.
+					var P= document.createElement("pre")							//
+					P.appendChild(I.document.documentElement)						// no need to use .adoptNode().  all browsers let this slide.
+					P[window.item?'innerText':'textContent']= P.innerHTML
+					P.className="box"
+					I.frameElement.parentNode.replaceChild(P,I.frameElement)
+				}
+			}
+			var F= document.body.appendChild(document.createElement("form"))
+			F.method= "GET"
+			F.target= "I"
+			F.action= url
+			F.submit()
+		}
+	</script>
+
+	<iframe name=I class="offscreen onepix" onload=f()></iframe>
+
+

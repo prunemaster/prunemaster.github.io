@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+
+	<title>xml in iframe</title>
+	<meta charset=utf-8>
+	<!-- ===================================================================================== -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/038bdba3-f29b-43b1-ac80-73e204961112/  -->
+	<!-- show-an-xml-file-contents-in-a-html-page-using-iframe                                 -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/477b3f31-554f-4b44-b252-4e824bbef6ca/  -->
+	<!-- micosoft-edge-cannot-read-local-files-with-ajax-method-of-jquery                      -->
+	<!--                                                                                       -->
+	<!-- ===================================================================================== -->
+
+	<script>
+		function f(doc,url){
+			function show(result){
+				doc.body.appendChild(doc.createElement("pre"))[window.item?'innerText':'textContent']= result
+			}
+			function xferXML(){
+				if (xhr.status==0 || xhr.status==200)
+					show(xhr.responseText)
+				else	show(xhr.status+' '+xhr.statusText)
+			}
+			try{
+				if (!window.XMLHttpRequest || (window.item && location.protocol=="file:"))
+					var xhr= new ActiveXObject("MSXML2.XMLHTTP.6.0")
+				else	var xhr= new XMLHttpRequest()
+				xhr.open('GET',url,true)
+				if (xhr.onload===null)
+					xhr.onload= xferXML
+				else	xhr.onreadystatechange= function(){ if (xhr.readyState==4) xferXML() }
+				if (xhr.onerror===null)
+					xhr.onerror= function(evt){ evt=evt||event; show(evt.toString().match(/\S*Event/)+' '+evt.type) }
+				xhr.send()
+			}
+			catch(e){ show(e.message||e) }
+		}
+	</script>
+
+	<iframe onload="f(this.contentWindow.document,'test.xml')" width=640 height=480></iframe>

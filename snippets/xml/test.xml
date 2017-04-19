@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="coffee://yo.mama/"
+      xmlns:stooge="http://www.threestooges.com/"
+      xmlns:mvp="http://www.IECustomizer.com/" >
+    <count number="4">
+        <stooge:name>Moe</stooge:name>
+        <stooge:name>Larry</stooge:name>
+        <stooge:name>Curly</stooge:name>
+        <mvp:name>IECustomizer</mvp:name>
+    </count>
+</root>

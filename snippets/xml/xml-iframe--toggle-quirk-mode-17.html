@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> xml iframe test </title>
+
+	<meta  http-equiv="x-ua-compatible" content="IE=5">
+	<meta  http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- ===================================================================================== -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/038bdba3-f29b-43b1-ac80-73e204961112/  -->
+	<!-- show-an-xml-file-contents-in-a-html-page-using-iframe                                 -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/477b3f31-554f-4b44-b252-4e824bbef6ca/  -->
+	<!-- micosoft-edge-cannot-read-local-files-with-ajax-method-of-jquery                      -->
+	<!--                                                                                       -->
+	<!-- ===================================================================================== -->
+
+	<style type=text/css>
+		html,body,#viewport { font-family:'Segoe UI',sans-serif; font-size:12pt;
+					position:absolute;display:block; top:0;right:0;bottom:0;left:0;margin:0;
+					border:0;padding:0; width:100%;height:100% }
+		
+		td,#div0 { white-space:nowrap }
+		#div0,table,iframe { margin-left:1em }
+	</style>
+
+	<script>
+		var metas= document.getElementsByTagName('meta')
+		metas= [ metas[0],metas[1] ]							// [x-ua-compat, html+charset]  -or-  [ html+charset, undef ]
+
+
+		onload = function(){
+
+			var r= name
+
+			var n= r.match(/^(reload(\d+))?/i)[2]
+			if (n) { doit(+n); return }						// n=="0" (string) resolves as true.  only n==undefined resolves false.
+												// ( +n converts string to number, just to be safe)
+			name= r+'x'
+			if (r=='reload') {
+				location.reload()						// this "soft" reload retains modified document and honors meta x-ua-compat IE=
+				if (!('cssText' in document.styleSheets[0]))			//
+					setTimeout( onload,250 )				// firefox does nothing.  so fake it.  manually invoke onload.
+				return
+			}
+
+			while (div0.firstChild) div0.removeChild(div0.firstChild)
+
+			if (metas[1])
+				div0.appendChild(
+					document.createElement("p") ).appendChild(
+						document.createTextNode( metas[0].outerHTML ) )
+
+			div0.appendChild(
+				document.createElement("p") ).appendChild(
+					document.createTextNode("documentMode="+document.documentMode+
+								"\xA0\xA0\u2022\xA0\xA0" +
+								"compatMode="+document.compatMode ) )
+
+		}
+		function doit(n){
+
+			if (n==undefined) {
+				n= sel.selectedIndex || 0
+				if (n<0) n=0
+
+				if (document.documentMode && (document.documentMode>8)) {	// when docmode >8, it is locked.  can't be changed with modified document reload()
+					name= 'reload' + n					// BUT HERE'S THE TRICK
+					location.href= location.href				// this "hard" load fetches original page
+					return							// and restarts (unlocks) document-mode selection, and accepts original page's meta IE=5
+				}
+			}
+
+			name= 'reload'
+
+			if (metas[1]){
+				metas[0].parentNode.removeChild(metas[0])
+				metas= [ metas[1], undefined ]
+			}
+			if (n>0){
+				var m= document.createElement('meta')
+				m.setAttribute('http-equiv', 'x-ua-compatible')
+				m.setAttribute('content', sel[n].text)
+				metas[0].parentNode.insertBefore(m,metas[0])
+				metas= [ m, metas[0] ]
+			}				
+				
+			sel[n].setAttribute('selected','true')					// this "true" is needed for reload from docmode >8  (page is presently restarting at IE=5 and being modified for new x-ua-compat IE=value)
+												// also odd but harmless, in this state, following loop finds every option in list has an existing nodeName="selected" attributeNode.
+			for (var i=0; i<sel.length; i++)					// was already a workaround, because removeAttribute doesn't work.  (old IE bug).  so the option(s) with "selected" attribute are being rebuilt without it.
+				if ((i!=n)&&sel[i].getAttributeNode('selected')){
+					var o= document.createElement("option")
+					o.text= sel[i].text
+					sel[i]= o
+				}
+
+			var html= document.documentElement.outerHTML.replace(/UTF-\x38/i,'UTF-16')
+
+			if (n>0){								//
+				var H= m.outerHTML						// IE bugfix.  meta attribute  content=IE=xx  lacks quotes.
+				if (H.match(/content=[^\"]/i)) {				//                change to:   content="IE=xx"
+					var H2= H.replace(/(content=)([^\s>]*)/i,'$1"$2"')	//
+					html= html.replace(H,H2)				//
+				}								//
+			}									//
+
+			var doc= document.open() || document
+			doc.write( /*'\uFEFF' +*/ '<!DOCTYPE html>'+'\n'+html )
+			doc.close()
+		}
+	</script>
+</head>
+<body>
+	<div id=viewport>
+		<br>
+		<div id=div0></div>
+		<br>
+		<table>
+			<tr>
+			<td>Select docmode:
+			<td style=padding-left:1em>
+				<select id=sel>
+					<option>(none)</option>
+					<option>IE=edge</option>
+					<option>IE=11</option>
+					<option>IE=10</option>
+					<option>IE=9</option>
+					<option>IE=8</option>
+					<option>IE=7</option>
+					<option selected>IE=5</option>
+					<option>IE=EmulateIE11</option>
+					<option>IE=EmulateIE10</option>
+					<option>IE=EmulateIE9</option>
+					<option>IE=EmulateIE8</option>
+					<option>IE=EmulateIE7</option>
+				</select>
+				<button type=button onclick=doit()>update</button>		
+		</table>
+		<br>
+		<br>
+		<iframe src=test-17.xml width=640 height=480></iframe>
+	</div>
+</body>
+</html>

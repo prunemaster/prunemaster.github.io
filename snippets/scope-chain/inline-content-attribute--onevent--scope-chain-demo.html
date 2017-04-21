@@ -1,0 +1,36 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> scope chain </title>
+
+
+<p id=p onclick=alert(myString) style=cursor:pointer;display:inline-block>
+	click me
+
+	<script>
+		p.myString=	'this element "p" has an an inline onclick attribute:'		+"\n"+
+				'onclick=alert(myString)'					+"\n"+
+				''								+"\n"+
+				'and an IDL attribute "myString"'				+"\n"+
+				'p.myString= all of this text'					+"\n"+
+				''								+"\n"+
+				'when you clicked "<p>click me</p>" the onclick handler'	+"\n"+
+				'executed "alert(myString)".  it looks like we would get'	+"\n"+
+				'"myString" from the global window, yes?'			+"\n"+
+				''								+"\n"+
+				'surprise.'							+"\n"+
+				''								+"\n"+
+				"the scope chain for event handlers inside an element tag is:"	+"\n"+
+				"element > form > document > window"
+	</script>
+</p>
+
+<br>
+<br>
+<a href=http://www.w3.org/TR/html5/webappapis.html#event-handler-attributes target=_blank">
+	       www.w3.org/TR/html5/webappapis.html#event-handler-attributes
+</a>
+<br>
+<a href=http://www.w3.org/TR/html5/webappapis.html#internal-raw-uncompiled-handler target=_blank>
+	       www.w3.org/TR/html5/webappapis.html#internal-raw-uncompiled-handler
+</a>
+

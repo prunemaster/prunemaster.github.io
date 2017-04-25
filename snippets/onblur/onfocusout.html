@@ -6,11 +6,19 @@
 <!-- ie-11-issue-alert-popup-is-getting-displayed-after-minimizing-the-current-window      -->
 <!--                                                                                       -->
 <!-- this fixes the alert-during-onblur bug with IE by replacing onblur with onfocusout    -->
-<!-- in HTMLElement.prototype.  msEdge has same bug, but doesn't implement onfocusout.     -->
-<!-- no browsers do, except IE.                                                            -->
+<!-- in HTMLElement.prototype.  msEdge has same bug, but doesn't supply onfocusout in      -->
+<!-- in HTMLElement.prototype.  no browsers do, except IE.                                 -->
 <!--                                                                                       -->
-<!-- oddly, SVG and HTML 4.01 recognize onfocusout.  but not HTML5.                        -->
-<!-- yet HTML5 recognizes event-type focusout.  just not ONfocusout anymore.               -->
+<!-- ===================================================================================== -->
+<!-- it's odd, because all browsers support onfocusout event handler in element Content**  -->
+<!-- attributes.  but then, there's no corresponding IDL attribute element.onfocusout      -->
+<!-- attribute produced.  it can only be seen in the **inline element.outerHTML text.      -->
+<!--                                                                                       -->
+<!-- oddly, SVG and HTML 4.01 specs define intrinsic event onfocusout.  but not HTML5.     -->
+<!-- HTML5 recognizes event-type focusout.  just not ONfocusout in HTMLElement.prototype.  -->
+<!-- to repeat, all browsers Firefox,Chrome,IE,msEdge fire onfocusout when it's            -->
+<!-- an inline attribute.  this works:  <input onfocusout=alert('out')> , but the          -->
+<!-- matching element.onfocusout IDL attribute is not produced.                            -->
 <!--                                                                                       -->
 <!-- http://www.w3.org/TR/SVG/script.html#GraphicsEvents                                   -->
 <!-- http://www.w3.org/TR/html401/interact/scripts.html#h-18.2.3                           -->

@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+
+<!-- ===================================================================================== -->
+<!-- https://social.msdn.microsoft.com/Forums/en-US/8de75e55-4b03-418a-a564-66d830790d9c/  -->
+<!-- ie-11-issue-alert-popup-is-getting-displayed-after-minimizing-the-current-window      -->
+<!--                                                                                       -->
+<!-- this fixes the alert-during-onblur bug with IE by replacing onblur with onfocusout    -->
+<!-- in HTMLElement.prototype.  msEdge has same bug, but doesn't implement onfocusout.     -->
+<!-- no browsers do, except IE.                                                            -->
+<!--                                                                                       -->
+<!-- oddly, SVG and HTML 4.01 recognize onfocusout.  but not HTML5.                        -->
+<!-- yet HTML5 recognizes event-type focusout.  just not ONfocusout anymore.               -->
+<!--                                                                                       -->
+<!-- http://www.w3.org/TR/SVG/script.html#GraphicsEvents                                   -->
+<!-- http://www.w3.org/TR/html401/interact/scripts.html#h-18.2.3                           -->
+<!-- http://www.w3.org/TR/html5/webappapis.html#handler-onfocus                            -->
+<!-- http://www.w3.org/TR/DOM-Level-3-Events/#event-type-focusout                          -->
+<!-- ===================================================================================== -->
+
+<head>
+    <title>onblur-onfocusout</title>
+
+	<script type="text/javascript">
+	// <![CDATA[
+
+		var FIX= location.search.toUpperCase()=="?FIX"
+			 || location.protocol=="file:"
+
+		onload= function(){
+
+			if ('onfocusout' in HTMLElement.prototype && FIX){
+
+				for (var i=0, x=document.querySelectorAll("[onblur]"), n=x.length, A=[]; i<n; i++){
+					A.push(x[i].onblur)
+					x[i].removeAttribute("onblur")
+				}
+				var d= Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'onfocusout')
+				Object.defineProperty(HTMLElement.prototype,'onblur', {get:d.get})
+				Object.defineProperty(HTMLElement.prototype,'onblur', {set:function(){
+					d.set.call( this,function(){ if (document.hasFocus()) arguments[0].call( this,arguments[1] )}.bind( this,arguments[0] ))
+				}})
+				for (--i; i>=0; i--)  x[i].onblur=A.pop()
+			}
+		}
+	// ]]>
+	</script>
+</head>
+<body>
+<input	name="txtFromDate" tabindex="6" id="txtFromDate" style="width: 75px;"  onblur="alert('Clicked')" type="text" maxlength="10" value="04/11/2017" />
+<br/>
+<br/>
+<input	name="modog" tabindex="6" id="modog" style="width: 75px;"
+	onblur="showModalDialog('modog.html','Clicked','center:yes; dialogHeight:400px; dialogWidth:400px; resizable:yes; scroll:no')" type="text" maxlength="10" value="04/24/2017" />
+
+</body>
+</html>

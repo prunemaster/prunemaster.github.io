@@ -5,25 +5,57 @@
 <!-- https://social.msdn.microsoft.com/Forums/en-US/8de75e55-4b03-418a-a564-66d830790d9c/  -->
 <!-- ie-11-issue-alert-popup-is-getting-displayed-after-minimizing-the-current-window      -->
 <!--                                                                                       -->
-<!-- this fixes the alert-during-onblur bug with IE by replacing onblur with onfocusout    -->
-<!-- in HTMLElement.prototype.  msEdge has same bug, but doesn't supply onfocusout in      -->
-<!-- in HTMLElement.prototype.  no browsers do, except IE.                                 -->
+<!-- this fixes the ALERT()-during-ONBLUR bug with IE                                      -->
+<!--                                                                                       -->
+<!-- by replacing onblur with onfocusout in HTMLElement.prototype.                         -->
+<!-- msEdge has same bug, but doesn't supply onfocusout in in HTMLElement.prototype.       -->
+<!-- no browsers do, except IE.                                                            -->
 <!--                                                                                       -->
 <!-- ===================================================================================== -->
-<!-- it's odd, because all browsers support onfocusout event handler in element Content**  -->
-<!-- attributes.  but then, there's no corresponding IDL attribute element.onfocusout      -->
-<!-- attribute produced.  it can only be seen in the **inline element.outerHTML text.      -->
+<!-- it's odd, because all browsers support onfocusout event handler in element inline     -->
+<!-- Content Attribute  <elt onfocusout=alert()>.                                          -->
 <!--                                                                                       -->
-<!-- oddly, SVG and HTML 4.01 specs define intrinsic event onfocusout.  but not HTML5.     -->
-<!-- HTML5 recognizes event-type focusout.  just not ONfocusout in HTMLElement.prototype.  -->
-<!-- to repeat, all browsers Firefox,Chrome,IE,msEdge fire onfocusout when it's            -->
-<!-- an inline attribute.  this works:  <input onfocusout=alert('out')> , but the          -->
-<!-- matching element.onfocusout IDL attribute is not produced.                            -->
+<!-- but no browser except IE supports the corresponding javascript accessible             -->
+<!-- onfocusout IDL Attribute  elt.onfocusout=function(){alert()}.                         -->
+<!--                                                                                       -->
+<!-- likewise, only IE implements HTMLElement.prototype.onfocusout                         -->
+<!--                                                                                       -->
+<!--                                                                                       -->
+<!-- by my reading of the W3C specs, onfocusout is not listed among the required Element   -->
+<!-- Event Handlers.  its support is optional.  but IF it is supported "secondarily"       -->
+<!-- in an Element's Content Attribute, then it MUST be supported ("primary") in its       -->
+<!-- corresponding IDL Attribute.                                                          -->
+<!--                                                                                       -->
+<!-- http://www.w3.org/TR/html5/webappapis.html#event-handlers                             -->
+<!--                                                                                       -->
+<!--                                                                                       -->
+<!-- if I read this correctly, then firefox,chrome,msEdge all are doing this wrong.        -->
+<!-- they support the onfocusout Content Attribute, yet not the IDL Attribute.             -->
+<!-- ===================================================================================== -->
+<!--                                                                                       -->
+<!-- Related Docs                                                                          -->
 <!--                                                                                       -->
 <!-- http://www.w3.org/TR/SVG/script.html#GraphicsEvents                                   -->
 <!-- http://www.w3.org/TR/html401/interact/scripts.html#h-18.2.3                           -->
 <!-- http://www.w3.org/TR/html5/webappapis.html#handler-onfocus                            -->
 <!-- http://www.w3.org/TR/DOM-Level-3-Events/#event-type-focusout                          -->
+<!--                                                                                       -->
+<!-- ===================================================================================== -->
+<!--                                                                                       -->
+<!-- Inconsistent difference in order of   blur - focusout - DOMfocusout( obsolete )       -->
+<!--                                                                                       -->
+<!-- http://www.w3.org/TR/DOM-Level-3-Events/#events-focusevent-event-order                -->
+<!-- http://www.w3.org/TR/DOM-Level-3-Events/#event-type-DOMFocusOut                       -->
+<!--                                                                                       -->
+<!-- confirmed: IE fires onfocusout BEFORE blur, correct with new focusout spec.           -->
+<!--                                                                                       -->
+<!-- Q: why does using onfocusout fix the onblur-alert-bug?                                -->
+<!-- A: FOCUSOUT occurs BEFORE the next element gets FOCUSIN.                              -->
+<!--      (before any focus begins on next element)                                        -->
+<!--    but blur fires after focusin.                                                      -->
+<!--    so apparently the alert BUG occurs if the modal alert stops progress               -->
+<!--       AFTER the next element BEGINS FOCUSING.                                         -->
+<!--                                                                                       -->
 <!-- ===================================================================================== -->
 
 <head>

@@ -1,0 +1,74 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>web notification</title>
+
+	<!-- ====================================================================================================================== -->
+	<!--  http://www.w3.org/TR/notifications/                                                                                   -->
+	<!--  https://developer.mozilla.org/en-US/docs/Web/API/Notification                                                         -->
+	<!--                                                                                                                        -->
+	<!--  CHROME PLANS TO BLOCK THIS API  FOR NON-HTTPS                                                                         -->
+	<!--                                                                                                                        -->
+	<!--  https://sites.google.com/a/chromium.org/dev/Home/chromium-security/deprecating-powerful-features-on-insecure-origins  -->
+	<!-- ====================================================================================================================== -->
+
+	<script>
+		function notify(p){
+
+			if (p){	button.disabled= false
+				if (p!="granted"){
+					result.innerHTML= p
+					return
+				}
+			}else{
+				try{ p= Notification.permission }
+				catch(e){ result.innerHTML= e.message||e
+					  return
+				}
+				if (p!="granted"){
+					button.disabled= true
+					result.innerHTML= p
+					Notification.requestPermission( notify )
+					return
+				}
+			}
+			result.innerHTML= p	//"granted"
+
+			var n= new Notification( "You typed:",	{ body: input.value,
+								  tag: radio2.checked&&Date.now() || 1234,
+								  icon: "smiley.gif",
+								  requireInteraction: radio1.checked })
+			n.onclick=
+			n.onshow=
+			n.onerror= function(evt){ result.innerHTML= evt.type }
+			n.onclose= function(evt){
+					n.onclick(evt)
+					n= n.onclick= n.onshow= n.onerror= n.onclose= null
+			}
+		}
+		onload= function(){ radio1.checked= radio2.checked= false }
+	</script>
+
+	<style>
+		*{ font-family:'Segoe UI',sans-serif; font-size:12pt }
+		p{ white-space:nowrap }
+		#input { margin-left:1em; padding-left:0.5em }
+		#result{ margin-left:2em }
+		#radio1{ margin-right:1em }
+		#radio2{ margin-left:1em }
+	</style>
+
+	<p>
+	Type a brief message: 
+		<input	id=input
+			onkeypress="((event.charCode||event.keyCode)=='\r'.charCodeAt(0))&&button.click()">
+		<span id=result></span>
+	<p>
+	<input	id=radio1 type=radio
+		title="requireInteraction&#x0A;(don't auto-close)"		
+		onclick="this.checked=this.chkd=!this.chkd">
+
+	<button id=button onclick=notify()>notify</button>
+
+	<input	id=radio2 type=radio
+		title=multiple
+		onclick="this.checked=this.chkd=!this.chkd">

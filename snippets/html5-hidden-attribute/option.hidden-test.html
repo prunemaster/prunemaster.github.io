@@ -61,7 +61,7 @@
 		</label>
 
 		<div class=inline>
-			<label>	<input	type=radio
+			<label>	<input	type=radio id=rbsty
 					onclick="opt2.style.visibility= (rbTF.call(this)?'hidden':'visible')
 						 if (bf.checked){
 							var n=sel.selectedIndex
@@ -75,7 +75,9 @@
 			</label>
 			<br>
 			<label>	<input	type=checkbox id=bf
-					onclick="rbTF.call(this)"
+					onclick="if (rbTF.call(this)){
+							rbsty.chkd=!rbsty.chkd
+							rbsty.click() }"
 					title="on: toggle selected&#xA;off: don't">
 				IE11 style bugfix
 			</label>

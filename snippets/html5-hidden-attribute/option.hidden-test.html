@@ -39,8 +39,7 @@
 			rbsiz.click()
 			var w2= sel.getBoundingClientRect().width
 			rbsiz.click()
-			if (w1>w2) w2=w1
-			sel.style.width= w2+"px"					/* prevent a little shifting when toggling select.size */
+			sel.style.width= (w1>w2?w1:w2)+"px"					/* prevent a little shifting when toggling select.size */
 		}
 	</script>
 
@@ -75,9 +74,7 @@
 			</label>
 			<br>
 			<label>	<input	type=checkbox id=bf
-					onclick="if (rbTF.call(this)){
-							rbsty.chkd=!rbsty.chkd
-							rbsty.click() }"
+					onclick="if (rbTF.call(this)) rbsty.onclick.call( rbsty, rbsty.chkd=!rbsty.chkd )"
 					title="on: toggle selected&#xA;off: don't">
 				IE11 style bugfix
 			</label>

@@ -1,0 +1,104 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> option.hidden </title>
+
+	<!-- ===================================================================================== -->
+	<!-- IE11 BUG - does not support HIDDEN html5 global attribute on OPTION element           -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/f7bba377-e43d-488b-a139-d451b8ae25c1/  -->
+	<!-- ie-11-couldnt-hide-option-from-dropdown-menu-with-hidden-attribute                    -->
+	<!--                                                                                       -->
+	<!-- ===================================================================================== -->
+	<!-- IE11 BUG - also style.VISIBILITY=HIDDEN needs kick when SELECT is open (sel.size=n)   -->
+	<!-- CHROME BUG - aligns RADIO buttons to BOTTOM of opened SELECT (even wrapped in LABEL)  -->
+	<!-- ===================================================================================== -->
+
+	<style>
+		*{ font-family:'Segoe UI',sans-serif; font-size:12pt; white-space:nowrap}
+		[type=radio],[type=checkbox] { margin-right:0.5em; vertical-align:baseline }
+		label { margin-left:2em; vertical-align:top }
+		.inline { display:inline-block; vertical-align:top }
+
+		            *{ letter-spacing:normal; letter-spacing:initial }			/* prevent a little shifting when inserting wrapper div */
+		body, .inline{ letter-spacing:-10px }						/* IE11 doesn't recognize "initial" */
+	</style>
+
+	<script>
+		function rbTF(){ return this.checked= this.chkd= !this.chkd }
+
+		onload= function(){
+			sel.style.width= getComputedStyle(sel).width				/* prevent a little shifting when toggling select.size */
+
+			sel.selectedIndex=-1
+			cbf.checked= cbf.chkd= true
+			bf.checked=  bf.chkd=  true
+			var rb=document.querySelectorAll("[type='radio']")
+			for (var i=0,n=rb.length; i<n; i++)  rb[i].onclick.call( rb[i], rb[i].chkd= rb[i].getAttribute("checked")==null )
+
+			try{ document.styleSheets[0].cssText+= "\n[type=radio],[type=checkbox]{vertical-align:text-bottom}" }catch(e){}		/* aesthetic tweak for msBrowsers */
+		}
+	</script>
+
+
+	<select id=sel>
+		<option id=opt0>item 1
+		<option id=opt1>item 2
+		<option id=opt2>item 3
+		<option id=opt3>item 4
+		<option id=opt4>item 5
+	</select>
+
+	<div id=wrapper class=inline>						<!-- this div is for chrome, which otherwise aligns RADIO buttons to BOTTOM of opened SELECT -->
+		<label>	<input	type=radio checked
+				onclick="opt2.hidden= rbTF.call(this)"
+				title="on: true&#xA;off: false">
+			item 3 hidden attrib
+		</label>
+
+		<div class=inline>
+			<label>	<input	type=radio
+					onclick="opt2.style.visibility= (rbTF.call(this)?'hidden':'visible')
+						 if (bf.checked){
+							var n=sel.selectedIndex
+							if (sel[n]==opt2)
+								sel.selectedIndex=-1
+							else	opt2.selected=true
+							sel.selectedIndex=n
+						 }"
+					title="on: hidden&#xA;off: visible">
+				item 3 visibility style
+			</label>
+			<br>
+			<label>	<input	type=checkbox id=bf
+					onclick="rbTF.call(this)"
+					title="on: toggle selected&#xA;off: don't">
+				IE11 style bugfix
+			</label>
+		</div>
+
+		<label>	<input	type=radio checked 
+				onclick="sel.selectedIndex= (rbTF.call(this)?2:-1)"
+				title="on: true&#xA;off: false">
+			item 3 selected
+		</label>
+
+		<div class=inline>
+			<label>	<input	type=radio checked
+					onclick="sel.size= (rbTF.call(this)?5:0)"
+					title="on: 5&#xA;off: 0">
+				select.size=5
+			</label>
+			<br>
+			<label>	<input	type=checkbox id=cbf
+					onclick="if (rbTF.call(this)){
+							sel.parentNode.insertAdjacentHTML('beforeend','<div id=wrapper class=inline></div>')
+							while (sel.nextSibling!=wrapper) wrapper.appendChild(sel.nextSibling)
+						}else{
+							while(wrapper.firstChild) wrapper.parentNode.insertBefore(wrapper.firstChild,wrapper)
+							wrapper.parentNode.removeChild(wrapper)
+						}"
+					title="on: use wrapper div&#xA;off: don't">
+				Chrome radio bugfix
+			</label>
+		</div>
+	</div>

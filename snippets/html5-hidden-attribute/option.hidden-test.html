@@ -27,8 +27,6 @@
 		function rbTF(){ return this.checked= this.chkd= !this.chkd }
 
 		onload= function(){
-			sel.style.width= getComputedStyle(sel).width				/* prevent a little shifting when toggling select.size */
-
 			sel.selectedIndex=-1
 			cbf.checked= cbf.chkd= true
 			bf.checked=  bf.chkd=  true
@@ -36,6 +34,13 @@
 			for (var i=0,n=rb.length; i<n; i++)  rb[i].onclick.call( rb[i], rb[i].chkd= rb[i].getAttribute("checked")==null )
 
 			try{ document.styleSheets[0].cssText+= "\n[type=radio],[type=checkbox]{vertical-align:text-bottom}" }catch(e){}		/* aesthetic tweak for msBrowsers */
+
+			var w1= sel.getBoundingClientRect().width
+			rbsiz.click()
+			var w2= sel.getBoundingClientRect().width
+			rbsiz.click()
+			if (w1>w2) w2=w1
+			sel.style.width= w2+"px"					/* prevent a little shifting when toggling select.size */
 		}
 	</script>
 
@@ -83,7 +88,7 @@
 		</label>
 
 		<div class=inline>
-			<label>	<input	type=radio checked
+			<label>	<input	type=radio id=rbsiz checked
 					onclick="sel.size= (rbTF.call(this)?5:0)"
 					title="on: 5&#xA;off: 0">
 				select.size=5

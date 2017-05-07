@@ -1,0 +1,70 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> submit option.hidden </title>
+
+	<!-- ===================================================================================== -->
+	<!-- Test if OPTION.HIDDEN elements in FORM actually do send upon SUBMIT.  they do.        -->
+	<!--                                                                                       -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/f7bba377-e43d-488b-a139-d451b8ae25c1/  -->
+	<!-- ie-11-couldnt-hide-option-from-dropdown-menu-with-hidden-attribute                    -->
+	<!--                                                                                       -->
+	<!-- ===================================================================================== -->
+
+
+	<style>
+		:not(pre){ font-family:"Segoe UI",sans-serif }
+			*{ font-size:12pt }
+		    input{ margin:0 0 0 1em }
+	</style>
+
+	<form	id=form
+		method=GET
+		action="data:text/plain;charset=utf-8,your%20query:%20%20"
+		target=testframe >
+
+		<select	name=key multiple
+			title=" you can ctrl+click these "
+			onclick="title='';onclick=null" >
+
+			<option>Moe
+			<option>Larry
+			<option>Curly
+			<option selected hidden> hidden1
+			<option selected hidden> hidden2
+			<option selected hidden> hidden3
+			<option>Joe
+		</select>
+
+		<input type=submit>
+		<input type=reset onclick="testframe.frameElement.style.display='none'">
+	</form>
+
+	<p>
+	<iframe	name=testframe
+		style=display:none
+		onload="onload=function(){
+				try{	var doc=this.contentDocument, html=doc.documentElement, body=doc.body		// IE,Chrome throw when accessing iframe from data:url
+					html.style.cssText= body.style.cssText= 'margin:0; padding:0; font-size:12pt'	// (chrome gets ?query appended to data:url ok, but can't access iframe to resize it)
+					if (form.action[0]!='d')							//  Chrome gets ?query on about:blank  (FF doesn't)
+						body.innerHTML='<pre>your query:  '+doc.location.search+'</pre>'	//
+					if (form.action[0]=='a'){							//// Chrome bugfix.  iframe css is broken when parent page is file: url
+						this.style.height= this.style.width= 0					////
+						body.firstChild.style.margin= getComputedStyle(body.firstChild).margin	////
+					}										////
+					this.style.display=''								// FF reads height=0 when display:none
+					var w=html.scrollWidth+'px', h=html.scrollHeight+'px'
+					this.style.cssText= 'border:none; width:'+w+'; height:'+h
+				}
+				catch(e){
+					if (form.action[0]=='d'){
+						form.action=location.href						// IE is happy with this
+						form.submit()								// (but chrome won't permit iframe access if file: protocol)
+					}else if (form.action[0]!='a'){
+						form.action='about:blank'						// Chrome is happy happy happy with this
+						form.submit()
+					}
+				}
+			}"
+		></iframe>
+
+	

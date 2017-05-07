@@ -54,6 +54,8 @@
 					}										////
 					this.style.display=''								// FF reads height=0 when display:none
 					var w=html.scrollWidth+'px', h=html.scrollHeight+'px'
+					html.style.overflow= body.style.overflow= 'hidden'				//// MS-EDGE bugfix - fraction of pixel height error causes scrollbars.
+															//// can't use getComputedStyle or getBoundingClientRect for width, clipped by iframe.  etc.
 					this.style.cssText= 'border:none; width:'+w+'; height:'+h
 				}
 				catch(e){

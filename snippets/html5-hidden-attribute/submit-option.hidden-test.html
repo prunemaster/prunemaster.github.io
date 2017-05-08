@@ -2,24 +2,25 @@
 	<meta charset=utf-8>
 	<title> submit option.hidden </title>
 
-	<!-- ===================================================================================== -->
-	<!-- Test if OPTION.HIDDEN elements in FORM actually do send upon SUBMIT.  they do.        -->
-	<!--                                                                                       -->
-	<!-- https://social.msdn.microsoft.com/Forums/en-US/f7bba377-e43d-488b-a139-d451b8ae25c1/  -->
-	<!-- ie-11-couldnt-hide-option-from-dropdown-menu-with-hidden-attribute                    -->
-	<!--                                                                                       -->
-	<!-- ===================================================================================== -->
+	<!-- ============================================================================================= -->
+	<!-- Test if OPTION.HIDDEN elements in FORM actually do send upon SUBMIT.  they do.                -->
+	<!--                                                                                               -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/f7bba377-e43d-488b-a139-d451b8ae25c1/          -->
+	<!-- ie-11-couldnt-hide-option-from-dropdown-menu-with-hidden-attribute                            -->
+	<!--                                                                                               -->
+	<!-- ============================================================================================= -->
 
 
 	<style>
-		:not(pre){ font-family:"Segoe UI",sans-serif }
-			*{ font-size:12pt }
-		    input{ margin:0 0 0 1em }
+		    *{ font-family:'Segoe UI',sans-serif; font-size:12pt }
+		  pre{ font-family:'Courier New',monospace; margin-top:2em }
+		input{ font-size:10pt; margin-left:1em }
+		::-moz-focus-inner{ border:0 }
 	</style>
 
 	<form	id=form
 		method=GET
-		action="data:text/plain;charset=utf-8,your%20query:%20%20"
+		action="data:,your%20query:%20%20"
 		target=testframe >
 
 		<select	name=key multiple
@@ -35,37 +36,31 @@
 			<option>Joe
 		</select>
 
-		<input type=submit onclick="testframe.frameElement.style.display='none'">
-		<input type=reset  onclick="testframe.frameElement.style.display='none'">
+		<input type=submit value=Submit>
+		<input type=reset  value=Reset  onclick="pre.innerHTML=''">
 	</form>
 
-	<p>
+	<pre id=pre></pre>
+
 	<iframe	name=testframe
 		style=display:none
-		onload="if (location.protocol=='https:') form.action=location.href					// FF, if https dont use data:url. it raises warning dialog.  (non- file: url works ok)
-			onload=function(){
-				try{	var doc=this.contentDocument, html=doc.documentElement, body=doc.body		// IE,Chrome throw when accessing iframe from data:url
-					html.style.cssText= body.style.cssText= 'margin:0; padding:0; font-size:12pt'	// (chrome gets ?query appended to data:url ok, but can't access iframe to resize it)
-					if (form.action[0]!='d')							//  Chrome gets ?query on about:blank  (FF doesn't)
-						body.innerHTML='<pre>your query:  '+doc.location.search+'</pre>'	//
-					if (form.action[0]=='a'){							//// Chrome bugfix.  iframe css is broken when parent page is file: url
-						this.style.height= this.style.width= 0					////
-						body.firstChild.style.margin= getComputedStyle(body.firstChild).margin	////
-					}										////
-					this.style.display=''								// FF reads height=0 when display:none
-					var w=html.scrollWidth+'px', h=html.scrollHeight+'px'
-					html.style.overflow= body.style.overflow= 'hidden'				//// MS-EDGE bugfix - fraction of pixel height error causes scrollbars.
-															//// can't use getComputedStyle or getBoundingClientRect for width, clipped by iframe.  etc.
-					this.style.cssText= 'border:none; width:'+w+'; height:'+h
+		onload="form.reset()									// 1st onload. reset form fields. because sometimes revisit/F5 they're out-of-sync.
+			if (location.protocol=='https:') form.action=location.href			// FF, if https dont use data:url. it raises security warning.
+			onload=function(){								// IE,Chrome throw when accessing iframe from data:url
+				try{	var doc=this.contentDocument, body=doc.body			// Chrome gets location.search='?query' on about:blank  (FF doesn't)
+					if (form.action[0]=='d')					//
+						pre.innerHTML= body.textContent				// FF  querystring is appended to data:url text (location.search='')
+					else	pre.innerHTML='your query:  '+doc.location.search	//
 				}
 				catch(e){
 					if (form.action[0]=='d'){
-						form.action=location.href						// IE is happy with this
-						form.submit()								// (but chrome won't permit iframe access if file: protocol)
+						form.action=location.href				// IE is happy with this
+						form.submit()						// (but chrome won't permit iframe access if file: protocol)
 					}else if (form.action[0]!='a'){
-						form.action='about:blank'						// Chrome is happy happy happy with this
+						form.action='about:blank'				// Chrome is happy happy happy with this
 						form.submit()
 					}
+					else pre.innerHTML= e.message||e
 				}
 			}"
 		></iframe>

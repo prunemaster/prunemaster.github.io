@@ -1,0 +1,33 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> opener.html </title>
+
+	<!-- ===================================================================================== -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/cdbf22a9-f641-4c97-9e87-4decf6862063/  -->
+	<!-- ie-11-not-allowing-windowopener-when-running-with-admin-privilege                     -->
+	<!-- ===================================================================================== -->
+
+	<script>
+		name='opener'
+
+		function openn(value){
+			alert(value)
+			document.body.insertAdjacentHTML("beforeend","<br>"+value)
+		}
+
+		var ppWindow
+
+		function pop(){
+			var OpenProp = "toolbar=no,status=no,menubar=no,scrollbars=no,resizable=yes,width=400,height=400,top=500,left=500"
+			var ppWindow = window.open('','ppWindow',OpenProp)
+			ppWindow.focus()
+			popUpFrame.form.method = "GET"
+			popUpFrame.form.action = "popup.html"
+			popUpFrame.form.target = "ppWindow"
+			popUpFrame.form.submit()
+		}
+	</script>
+
+	<button onclick=pop()>new popup</button>
+
+	<iframe src=popUpFrame.html width=575 height=355 name=popUpFrame frameborder=0 bordercolor=3FA5FF></iframe>

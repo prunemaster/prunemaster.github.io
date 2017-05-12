@@ -1,0 +1,14 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> popup.html </title>
+
+	<!-- ===================================================================================== -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/cdbf22a9-f641-4c97-9e87-4decf6862063/  -->
+	<!-- ie-11-not-allowing-windowopener-when-running-with-admin-privilege                     -->
+	<!-- ===================================================================================== -->
+
+	<script> document.write('opener.name=='+opener.name+'<br><br>') </script>
+
+	Type something and hit Enter:
+
+	<input onkeypress="if ((event.charCode||event.keyCode)=='\r'.charCodeAt(0)) opener.parent.openn(value)">

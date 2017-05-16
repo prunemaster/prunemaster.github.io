@@ -1,0 +1,111 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title>test</title>
+
+	<!-- ========================================================================================================================================== -->
+	<!-- https://social.technet.microsoft.com/Forums/en-US/0abe5b09-796d-43b9-b9fc-8119f3bca33b/hubvideomsncom-secured-site                         -->
+	<!--                                                                                                                                            -->
+	<!-- hub.video.msn.com  no longer exists                                                                                                        -->
+	<!--                                                                                                                                            -->
+	<!-- https://support.office.com/en-us/article/Create-your-first-Word-2013-document-abfe7d91-98e5-422f-9033-6df5f5998b0a?ui=en-US&rs=en-US&ad=US -->
+	<!-- ========================================================================================================================================== -->
+
+	<style>
+		* { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		html,body { width:100%; height:100%; margin:0; padding:0 }
+
+		#box { display:inline-block; position:absolute; top:0;right:0;bottom:0;left:0; margin:auto; visibility:hidden }
+		p { margin-top:2em; white-space:nowrap }
+		input { margin-right:0.25em }
+		button,span { margin-left:2em }
+	</style>
+
+	<script>
+		onload= function(){
+			rb.checked= rb.chkd= true
+
+			p.style.display="inline-block"
+			span.innerHTML="0/0"
+			box.style.width=  p.offsetWidth +"px"
+			box.style.height= p.offsetHeight+"px"
+			p.style.display= span.innerHTML= ""
+			box.style.visibility= "visible"
+		}
+		
+		var videoid= [	"23232fd2-c4cf-469f-a5b0-7df840b235e3",		// there's NO NEED for this videoid table (and following getURL XHR stuff)
+				"d16f40a9-7b13-41d3-95e0-46f4f446cf00",		// it's just here for P.O.C.
+				"7b95f653-9817-4ce6-8a16-a5afbcaf600b",		//
+				"96471f48-002e-44b0-95fd-c38245b81a57",		// these id's are for each of the ms-office site's embedded videos
+				"885a00fa-7260-4fd6-8f00-0e357008c396" ]	// the full urls are already extracted into videoPath table below
+			
+		var videoPathXHR= []
+
+		var videoPath=	["videocontent.osi.office.net/78cedf4e-0292-4dd2-bbdd-235ab4d9400d/23232fd2-c4cf-469f-a5b0-7df840b235e3__H264_3400kbps_AAC_und_ch2_96kbps.mp4",
+				 "videocontent.osi.office.net/10cd60dd-151a-4c05-8a25-d42b3c0d5420/d16f40a9-7b13-41d3-95e0-46f4f446cf00__H264_3400kbps_AAC_und_ch2_96kbps.mp4",
+				 "videocontent.osi.office.net/2d82b42b-fda3-4292-ae59-3103268f1cca/7b95f653-9817-4ce6-8a16-a5afbcaf600b__H264_3400kbps_AAC_und_ch2_96kbps.mp4",
+				 "videocontent.osi.office.net/f4b9799d-6c32-4dc9-b839-f5f395f240ae/96471f48-002e-44b0-95fd-c38245b81a57__H264_3400kbps_AAC_und_ch2_96kbps.mp4",
+				 "videocontent.osi.office.net/7b6ac629-53ae-4bfb-b051-86331d4f2b11/885a00fa-7260-4fd6-8f00-0e357008c396__H264_3400kbps_AAC_und_ch2_96kbps.mp4" ]
+		videoPath.NUM= 0
+
+		function getURL(n){
+			var xhr= new XMLHttpRequest()
+			xhr.open('GET', "http://video.osi.office.net/api/videos/"+videoid[n], true)
+			xhr.onload=	function(evt){
+						var j= JSON.parse(xhr.response)
+						var u= j.streams["h.264_1280_720_3400kbps"].url
+						videoPathXHR[n]= u.match(/^https?:\/\/(.*)/i)[1]
+					}
+			xhr.send()
+		}
+		for (var i=0; i<videoid.length; i++) try{ getURL(i) }catch(e){}
+
+		function getPath(){ return (rb.chkd? "https://":"http://") +(videoPathXHR[videoPath.NUM] || videoPath[videoPath.NUM]) }
+
+		function vidNewSrc(){
+			if (vid.src){
+				btn1.disabled= btn2.disabled= btn3.disabled= true
+				vid.pause()
+				vid.src= getPath()
+			}
+		}
+	</script>
+
+	<div id=box>
+		<video	id=vid
+			width=0
+			onloadedmetadata="var w= parseInt(box.style.width), h= videoHeight*w/videoWidth
+					  style.width=  w+'px'
+					  style.height= h+'px'
+					  box.style.height= p.getBoundingClientRect().height +h+ 'px'
+					  btn1.disabled= false"
+			onerror="btn1.disabled= btn2.disabled= btn3.disabled= true
+				 error&&alert(error.message||error.code)" >
+		</video>
+
+		<p id=p>
+			<label title="on: https&#xA;off: http">
+				<input	id=rb type=radio			 
+					onclick="this.checked= this.chkd= !this.chkd
+						 vidNewSrc()" >
+				https
+			</label>
+
+			<button id=btn1 onclick="span.innerHTML= (videoPath.NUM+1) +'/'+ videoPath.length
+						setAttribute('onclick',	['btn2.disabled= btn3.disabled= false',
+						 			 'vid.src= getPath()',
+									 'vid.play()'].join('\n') )
+						 onclick()"
+						>play</button>
+
+			<button id=btn2 disabled  onclick=vid.pause()>pause</button>
+
+			<button id=btn3 disabled  onclick=vid.play()>resume</button>
+
+			<button id=btn4 onclick="videoPath.NUM= (++videoPath.NUM)%videoPath.length
+						 span.innerHTML= (videoPath.NUM+1) +'/'+ videoPath.length				 
+						 if (!vid.paused&&!vid.ended) btn1.click()
+						 else vidNewSrc()"
+						>next</button>
+			<span id=span></span>
+		</p>
+	</div>

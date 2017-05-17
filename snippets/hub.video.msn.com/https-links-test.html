@@ -49,7 +49,7 @@
 
 		function getURL(n){
 			var xhr= new XMLHttpRequest()
-			xhr.open('GET', "http://video.osi.office.net/api/videos/"+videoid[n], true)
+			xhr.open('GET', "https://video.osi.office.net/api/videos/"+videoid[n], true)
 			xhr.onload=	function(evt){
 						var j= JSON.parse(xhr.response)
 						var u= j.streams["h.264_1280_720_3400kbps"].url

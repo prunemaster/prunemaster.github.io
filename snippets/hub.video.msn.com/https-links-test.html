@@ -15,7 +15,8 @@
 		html,body { width:100%; height:100%; margin:0; padding:0 }
 
 		#box { display:inline-block; position:absolute; top:0;right:0;bottom:0;left:0; margin:auto; visibility:hidden }
-		p { margin-top:2em; white-space:nowrap }
+		video { margin:auto; display:block; width:0;height:0 }
+		p { margin:auto; margin-top:2em; white-space:nowrap }
 		input { margin-right:0.25em }
 		button,span { margin-left:2em }
 	</style>
@@ -24,11 +25,16 @@
 		onload= function(){
 			rb.checked= rb.chkd= true
 
-			p.style.display="inline-block"
+			p.insertAdjacentHTML("afterend","<div id=D style=display:inline-block></div>")
+			D.appendChild(p)
 			span.innerHTML="0/0"
-			box.style.width=  p.offsetWidth +"px"
-			box.style.height= p.offsetHeight+"px"
-			p.style.display= span.innerHTML= ""
+			p.H= D.getBoundingClientRect().height
+			p.W= D.getBoundingClientRect().width
+			box.style.height= p.H +"px"
+			box.style.width= vid.style.width= p.W +"px"
+			span.innerHTML=""
+			box.replaceChild(p,D)
+
 			box.style.visibility= "visible"
 		}
 		
@@ -72,11 +78,9 @@
 
 	<div id=box>
 		<video	id=vid
-			width=0
-			onloadedmetadata="var w= parseInt(box.style.width), h= videoHeight*w/videoWidth
-					  style.width=  w+'px'
+			onloadedmetadata="var h= videoHeight*p.W/videoWidth
 					  style.height= h+'px'
-					  box.style.height= p.getBoundingClientRect().height +h+ 'px'
+					  box.style.height= p.H +h+ 'px'
 					  btn1.disabled= false"
 			onerror="btn1.disabled= btn2.disabled= btn3.disabled= true
 				 error&&alert(error.message||error.code)" >

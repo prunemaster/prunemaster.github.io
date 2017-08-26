@@ -1,0 +1,71 @@
+<!doctype html>
+	<title>judder button on ms-answers</title>
+	<meta charset=utf-8>
+
+	<!-- ============================================================================================ -->
+	<!--                                                                                              -->
+	<!-- MS-ANSWERS forum's new design displays a fixed-position SITE FEEDBACK button prominently     -->
+	<!-- on the right which JUDDERS BADLY.  The judder afflicts IE11 and EDGE only.                   -->
+	<!--                                                                                              -->
+	<!-- it's the same symptom, but NOT the same cause as the usual background-attachment:fixed       -->
+	<!-- bug here:                                                                                    -->
+	<!--                                                                                              -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/9567fc32-016e-48e9-86e2-5fe51fd67402/         -->
+	<!-- new-bug-in-ie11-scrolling-positionfixed-backgroundimage-elements-jitters-badly               -->
+	<!--                                                                                              -->
+	<!-- and here                                                                                     -->
+	<!--                                                                                              -->
+	<!-- https://answers.microsoft.com/en-us/ie/forum/msedge/                                         -->
+	<!-- edge-and-ie-11-browsers-flicker-on-some-website-on/8e042487-9dd9-48ae-ae6c-9ddc4d193b54      -->
+	<!-- ============================================================================================ -->
+
+	<style>
+		html,body,button{ font-family:'Segoe UI',sans-serif; font-size:12pt; line-height:16pt }
+		html,body{ width:100%;height:100%; margin:0;padding:0 }
+		body{ overflow-y:auto }
+
+		#bgdiv {
+			width:100%; height:200%;
+			vertical-align: top;
+			background-image: linear-gradient(to top, lightcoral, khaki, darkseagreen, lightblue)
+		}
+		#bgdiv.bg2 {
+			background:	url(cone3.png) no-repeat center/ 150px 375px,
+					linear-gradient(to top, lightcoral, khaki, darkseagreen, lightblue)
+		}
+
+		.site-survey-opener {
+			position:fixed; bottom:50%; right:0px;
+			transform-origin: bottom right;
+			transform: rotate(-90deg) translateX(50%);
+			/* z-index: 400; */
+			overflow: hidden;
+			text-align: center;
+			white-space: nowrap;
+		}
+		button {
+			background-color: rgba(0,0,0,.2);
+			padding: 9pt 12pt;
+			border: /*1px solid transparent;*/  0;
+			cursor: pointer;
+		}
+
+		.judder { outline: transparent dashed 1px }
+
+		#juddiv { position:fixed; top:0;left:0; background-color:rgba(255,255,255,0.5); padding:1em 2em 2em 2em; white-space:nowrap }
+		input[name=jud] { margin:auto 1em auto 0; opacity:0.5 }
+	</style>
+
+	<div id=bgdiv>
+		<div class=site-survey-opener>
+			<button id=btn class=judder onclick="bgdiv.className=bgdiv.className?'':'bg2'">Site Feedback</button>
+		</div>
+	</div>
+
+	<div id=juddiv>
+		<p>With IE11 and Edge, does your scrollwheel cause the Site Feedback button to <i>judder?</i></p>
+		<label><input type=radio id=judbtnOn name=jud onchange="btn.className='judder'">judder on</label>
+		<br>
+		<label><input type=radio id=judbtnOff name=jud onchange="btn.className=''">judder off</label>
+		<script> judbtnOn.click() </script>
+	</div>

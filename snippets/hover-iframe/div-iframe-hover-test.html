@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> iframe:hover test </title>
+	<meta charset=UTF-8>
+
+	<!-- ==================================================================================== -->
+	<!--                                                                                      -->
+	<!-- https://social.msdn.microsoft.com/Forums/en-US/513753a2-42d5-4399-aef4-da2d94a5868a/ -->
+	<!-- iframe-parent-element-loses-its-hover-status                                         -->
+	<!--                                                                                      -->
+	<!-- ==================================================================================== -->
+
+	<style type=text/css>
+		html,body { font-family:'Segoe UI',sans-serif; font-size:12pt }
+		div { position:relative; width:500px;height:350px; padding:0; border:1px solid blue; text-align:center; background-color:lightsteelblue }
+		p { margin-top:35px; line-height:15pt; color:white }
+		iframe { display:block; position:absolute; margin:0;left:49px;bottom:49px; width:400px;height:200px; border:1px solid green }
+		.ibfat { left:40px;bottom:40px; border-width:10px }
+		div:hover { font-weight:bold; font-size:13pt }
+	</style>
+</head>
+<body>
+	<div>
+		<p>This is a div</p>
+		<iframe src=about:blank onload="this.onload=null
+						if (location.search.toLowerCase()=='?fat') this.className='ibfat'
+						this.src=
+							'javascript:' +
+							encodeURIComponent(
+								'(function(){' +
+									'return(\'' +
+										'<!DOCTYPE html>\\n'+
+										'<style>\\n'+
+											'html,body{font-family:\\\'Segoe UI\\\',sans-serif;font-size:12pt}\\n'+
+											'html:hover{font-weight:bold;font-size:13pt}\\n'+
+											'body{background-color:darkseagreen;padding:1em;text-align:center}\\n'+
+											'span{color:white}\\n'+
+										'</style>\\n'+
+										'<span>This is an iframe</span>'+
+									'\')'+
+								'})()'
+							)"
+		></iframe>
+	</div>
+</body>

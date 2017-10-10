@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> (iframe) </title>
+
+	<meta  id=IFRAME  http-equiv="x-ua-compatible" content="IE=5">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- ===================================================== -->
+
+	<style type=text/css>
+		body { font-family:'Segoe UI', sans-serif; font-size:12pt }
+		 div { padding:1em; background-color:gray; border:1px solid blue; color:white; border-radius:10px }
+		body { padding:1em }
+		   a { display:none }
+	</style>
+
+	<script>
+		onload = function(){
+
+			var r= name
+			name= r+'x'
+			if (r=='reload') location.reload()
+
+
+			div.appendChild(
+				document.createElement("p") ).appendChild(
+					document.createTextNode( window["IFRAME"].outerHTML ) )
+
+			div.appendChild(
+				document.createElement("p") ).appendChild(
+					document.createTextNode("documentMode="+document.documentMode+
+								"\xA0\xA0\u2022\xA0\xA0" +
+								"compatMode="+document.compatMode ) )
+
+			a.setAttribute("href", "http://validator.w3.org/check?uri=" + encodeURIComponent(location.href))
+		}
+		function doit(){
+			name= 'reload'
+
+			var m= document.createElement('meta')
+			m.id= 'IFRAME'
+
+			var n= 0
+
+			if (sel.selectedIndex && (sel.selectedIndex>0)) {
+				n= sel.selectedIndex
+				m.setAttribute('http-equiv', 'x-ua-compatible')
+				m.setAttribute('content', sel[n].text)
+			}
+			sel[n].setAttribute('selected','')
+
+			for (var i=0; i<sel.length; i++)
+				if ((i!=n)&&sel[i].getAttributeNode('selected')){
+					var o= document.createElement("option")
+					o.text= sel[i].text
+					sel[i]= o
+				}
+			IFRAME.parentNode.replaceChild(m,IFRAME)
+
+			var d= document.createElement("div")
+			d.id= "div"
+			div.parentNode.replaceChild(d,div)
+
+			var html= document.documentElement.outerHTML.replace(/UTF-\x38/i,'UTF-16')
+			var doc= document.open()
+			if (!doc) doc= document
+			doc.write( /*'\uFEFF' +*/ '<!DOCTYPE html>'+'\n'+html )
+			doc.close()
+		}
+	</script>
+</head>
+<body>
+	<br>
+	<div id=div></div>
+	<br>
+	<select id=sel>
+		<option>(none)</option>
+		<option>IE=edge</option>
+		<option>IE=11</option>
+		<option>IE=10</option>
+		<option>IE=9</option>
+		<option>IE=8</option>
+		<option>IE=7</option>
+		<option selected>IE=5</option>
+		<option>IE=EmulateIE11</option>
+		<option>IE=EmulateIE10</option>
+		<option>IE=EmulateIE9</option>
+		<option>IE=EmulateIE8</option>
+		<option>IE=EmulateIE7</option>
+	</select>
+	<button type=button onclick=doit()>update</button>
+		
+	<br>
+	<br>
+	<a id=a href="#" target=_blank>W3C Validator</a>
+</body>
+</html>

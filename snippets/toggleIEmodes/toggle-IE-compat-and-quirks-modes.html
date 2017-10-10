@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> toggle IE Quirks and Compat modes </title>
+
+	<meta  id=HOST  http-equiv="x-ua-compatible" content="IE=5">
+	<meta  http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<!-- ===================================================== -->
+
+	<style>
+		body { font-family:'Segoe UI', sans-serif; font-size:12pt }
+		   a { display:none }
+	</style>
+
+	<script>
+		onload = function(){
+
+			var r= name
+
+			var n= r.match(/^(reload(\d+))?/i)[2]
+			if (n) { doit(+n); return }						// n=="0" (string) resolves as true.  only n==undefined resolves false.
+												// ( +n converts string to number, just to be safe)
+			name= r+'x'
+			if (r=='reload') location.reload()					// this "soft" reload retains modified document and honors meta x-ua-compat IE=
+
+
+			div.appendChild(
+				document.createElement("p") ).appendChild(
+					document.createTextNode( window["HOST"].outerHTML ) )
+
+			div.appendChild(
+				document.createElement("p") ).appendChild(
+					document.createTextNode("documentMode="+document.documentMode+
+								"\xA0\xA0\u2022\xA0\xA0" +
+								"compatMode="+document.compatMode ) )
+
+
+				////////////////////////////////////////////////////////////////////////////////////////////////// proof that IEmode can be changed programmatically
+																//            without user clicking button
+				if (r=="") {											//
+					var L= decodeURI(location.search.substr(1)).toUpperCase()				// url?querystring == IE=n  ?
+					if (L) {										//
+						for (var i=0; i<sel.length; i++) if (sel[i].text.toUpperCase()==L) break	//
+						if (i<sel.length) doit(i)							// init  IE=n  if query matches select-options choice
+					}											//
+				}												//
+				//////////////////////////////////////////////////////////////////////////////////////////////////
+
+		}
+		function newIframe(){
+
+			var newURL= iURL.value.match(/^\s*(\S.*?)?\s*$/)[1]
+			//var frame= iframe1.frameElement||iframe				// this gets "access denied" from IE11 desktop ...!?
+			  var frame= document.getElementById("iframe1")
+			if (newURL){
+				iURL.setAttribute("value",newURL)
+				frame.setAttribute("src",encodeURI(newURL))
+				div0.style.display="none"
+				div1.style.display="inline-block"
+			}else{
+				frame.removeAttribute("src")
+				div1.style.display="none"
+				div0.style.display="inline-block"
+			}
+		}
+		function doit(n){
+
+			if (n==undefined) {
+				n= sel.selectedIndex || 0
+				if (n<0) n=0
+
+				if (document.documentMode && (document.documentMode>8)) {	// when docmode >8, it is locked.  can't be changed with modified document reload()
+					name= 'reload' + n					// BUT HERE'S THE TRICK
+					location.href= location.href				// this "hard" load fetches original page
+					return							// and restarts (unlocks) document-mode selection, and accepts original page's meta IE=5
+				}
+			}
+
+			name= 'reload'
+
+			var m= document.createElement('meta')
+			m.id= 'HOST'
+			if (n>0) {
+				m.setAttribute('http-equiv', 'x-ua-compatible')
+				m.setAttribute('content', sel[n].text)
+			}
+			//sel[n].setAttribute('selected','')
+			  sel[n].setAttribute('selected','true')				// unclear why, this "true" is needed for reload from docmode >8  (page is presently restarting at IE=5 and being modified for new x-ua-compat IE=value)
+												// also odd but harmless, in this state, following loop finds every option in list has an existing nodeName="selected" attributeNode.
+			for (var i=0; i<sel.length; i++)					// was already a workaround, because removeAttribute doesn't work.  (old IE bug).  so the option(s) with "selected" attribute are being rebuilt without it.
+				if ((i!=n)&&sel[i].getAttributeNode('selected')){
+					var o= document.createElement("option")
+					o.text= sel[i].text
+					sel[i]= o
+				}
+			HOST.parentNode.replaceChild(m,HOST)
+
+			var d= document.createElement("div")
+			d.id= "div"
+			div.parentNode.replaceChild(d,div)
+
+			var html= document.documentElement.outerHTML.replace(/UTF-\x38/i,'UTF-16')
+
+			var H= HOST.outerHTML							// IE bugfix.  meta attribute  content=IE=xx  lacks quotes.  (so does id=HOST, but that's ok)
+			if (H.match(/content=[^\"]/i)) {					//                change to:   content="IE=xx"
+				var H2= H.replace(/(content=)([^\s>]*)/i,'$1"$2"')		//
+				html= html.replace(H,H2)					//
+			}									//
+
+			var doc= document.open() || document
+			doc.write( /*'\uFEFF' +*/ '<!DOCTYPE html>'+'\n'+html )
+			doc.close()
+		}
+	</script>
+</head>
+<body>
+	<div id=div></div>
+	<br>
+	<table>
+		<tr>
+		<td>Select docmode:
+		<td style=padding-left:1em>
+			<select id=sel>
+				<option>(none)</option>
+				<option>IE=edge</option>
+				<option>IE=11</option>
+				<option>IE=10</option>
+				<option>IE=9</option>
+				<option>IE=8</option>
+				<option>IE=7</option>
+				<option selected>IE=5</option>
+				<option>IE=EmulateIE11</option>
+				<option>IE=EmulateIE10</option>
+				<option>IE=EmulateIE9</option>
+				<option>IE=EmulateIE8</option>
+				<option>IE=EmulateIE7</option>
+			</select>
+			<button type=button onclick=doit()>update</button>		
+		<tr>
+		<td>Select iframe URL:
+		<td style=padding-left:1em>
+			<input id=iURL type=text>
+			<button type=button onclick=newIframe()>Go</button>
+	</table>
+	<br>
+	<br>
+	<br>
+	<div id=div0 style="display:inline-block;position:relative;width:800px;height:400px;border:3px solid;border-color:black lightgray lightgray black;">
+		<iframe  src=toggle-IE-compat-and-quirks-modes-(iframe).html  width=800 height=400  frameborder=0  style="border:none"></iframe>
+		<div style="position:absolute;bottom:-0.5em;left:0;width:100%;text-align:center"><span style="color:silver;background-color:white">( iframe )</span></div>
+	</div>
+	<div id=div1 style="display:none">
+		<iframe id=iframe1 width=1024 height=768 frameborder=0 style="border:2px solid black"></iframe>
+	</div>
+</body>
+</html>

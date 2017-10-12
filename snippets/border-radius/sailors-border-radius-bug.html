@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title> more IE border-radius bug  </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<!-- ===================================================================================================================== -->
+	<!--                                                                                                                       -->
+	<!-- http://stackoverflow.com/questions/31805296/why-do-i-get-a-faint-border-around-css-circles-in-internet-explorer       -->
+	<!--                                                                                                                       -->
+	<!-- Sailor's markup shows that the IE11 border-radius bug is not just "bleed-thru" at the edge.                           -->
+	<!-- IE is actually sampling the div background edge and carrying that color                                               -->
+	<!-- all the way to the border's outer edge.  (20rem red inner, 20rem+40px white outer).  Amazing.                         -->
+	<!--                                                                                                                       -->
+	<!-- The wrapper fix works nicely here.                                                                                    -->
+	<!-- ===================================================================================================================== -->
+
+	<style type=text/css>
+		body { font-family:'Segoe UI',sans-serif; font-size:14pt; color:black }
+
+		.inner {
+			border-radius: 50%;
+			border: 40px solid white;
+			background: red;
+			width: 20rem;
+			height: 20rem;
+			margin: 50px auto;
+		}
+		body {
+			background: #f4f4f4;
+		}
+		.nooverflow {
+			overflow:hidden;
+			background:white;
+		}
+		.innerfix {
+			background: red;
+			width: 20rem;
+			height: 20rem;
+		}
+		p { text-align:center }
+	</style>
+</head>
+<body>
+	<div id=inner class=inner><div id=inner2></div></div>
+	<br>
+	<p>
+	<button type=button onclick="	if (inner2.className != 'innerfix'){
+						inner2.className='innerfix'
+						inner.className='inner nooverflow'
+					}else{	inner.className='inner'
+						inner2.className=''
+					}
+					">toggle</button>
+	</p>
+	<br>
+	<br>
+</body>
+</html>

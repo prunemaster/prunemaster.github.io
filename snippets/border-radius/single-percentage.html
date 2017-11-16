@@ -1,0 +1,52 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> single percentage border-radius </title>
+
+	<!-- ========================================================================= -->
+	<!--                                                                           -->
+	<!--  https://bugzilla.mozilla.org/show_bug.cgi?id=1417143                     -->
+	<!--  https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-left-radius  -->
+	<!--                                                                           -->
+	<!-- ========================================================================= -->
+
+	<style id=thisCSS>
+			   html { font-family:'Segoe UI',sans-serif; font-size:12pt; white-space:nowrap }
+	
+			.corner { border-radius:20% }
+			   .box { display:inline-block; border:2px solid lightslategray; background:gainsboro; margin:2em }
+
+			  #box1 { width:400px; height:100px }
+			  #box2 { width:100px; height:400px }
+			  #box3 { width:200px; height:200px }
+
+			      p { margin:2em }
+			  input { margin-left:1em; vertical-align:middle }
+	/*	:-moz-focusring { outline:none } */
+	/*   ::-moz-focus-inner { border:none }  */
+	     ::-moz-focus-outer { border:none }
+	            input:focus { outline:none }
+	</style>
+
+	<script>
+		addEventListener("DOMContentLoaded",
+				function(){
+					for (var i=0; thisCSS.sheet.cssRules[i].selectorText != ".corner"; i++){}
+					input.corner= thisCSS.sheet.cssRules[i].style
+					input.value= parseInt( input.corner.borderRadius )
+					input.title= " "+input.value+"% "
+					input.focus()
+					},
+				true )
+	</script>
+
+	<div id=box1 class="box corner"></div>
+	<div id=box2 class="box corner"></div>
+	<div id=box3 class="box corner"></div>
+
+	<p>	border-radius percentage:
+
+		<input	id=input type=range min=0 max=50 step=1 value=20
+			onchange="corner.borderRadius= value+'%'
+				  title= ' '+value+'% '"
+			oninput="onchange()"
+			>

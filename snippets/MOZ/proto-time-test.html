@@ -1,0 +1,241 @@
+<!doctype html>
+	<meta charset=utf-8>
+	<title> __proto__ timing test </title>
+
+	<!-- ======================================================================================================= -->
+	<!--                                                                                                         -->
+	<!-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/proto           -->
+	<!--                                                                                                         -->
+	<!--                                                                                                         -->
+	<!-- MDN red billboard warnings that modifying  __proto__  is BAD.                                           -->
+	<!-- Is their commentary obsolete?                                                                           -->
+	<!--                                                                                                         -->
+	<!-- Oddly, running this demo around 5-10 times with only a few seconds between each pass causes             -->
+	<!-- FIREFOX to produce TERRIBLE TIMINGS.  Around 10X slower than previous runs.  But then                   -->
+	<!-- wait approx 60 seconds, and timing is ok again.  (garbage collection?)                                  -->
+	<!--                                                                                                         -->
+	<!-- only Firefox exhibits this abnormality.                                                                 -->
+	<!--                                                                                                         -->
+	<!--                                                                                                         -->
+	<!-- also:                                                                                                   -->
+	<!-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/setPrototypeOf  -->
+	<!-- ======================================================================================================= -->
+
+	<style>
+				      html { background:#ececec; margin-top:3em; margin-left:4em }
+				body,table { font-family:"Segoe UI",sans-serif; font-size:12pt }
+
+				     input { font-family:"MS Shell Dlg 2",tahoma; padding-left:0.25em }
+			       #inputTable { white-space:nowrap }
+			 #inputTable td+td { padding-left:1em }
+				      .bad { color:red; font-weight:bold }
+
+				 #spanBtnz { display:inline-block; margin-top:1em; white-space:nowrap }
+			::-moz-focus-inner { border:none }
+	     #radioBtn:focus, button:focus { outline:none }
+				 #radioBtn { margin-left:1em }
+
+			      #resultTable { visibility:hidden; margin-top:3em; border-collapse:collapse; white-space:nowrap; color:dimgray }		/* border-color inherits currentcolor */
+			   #resultTable td { border:1px solid slategray; padding:0.25em 0.5em; background:white }
+		   #resultTable [id^=test] { padding-left:1em; padding-right:1.5em }
+		   #resultTable [id^=numT] { color:seagreen; font-weight:bold }
+		#resultTable [id^=resultX] { font-size:0.9em; text-align:center }
+		   #resultTable [id^=note] { font-size:0.9em; padding-right:1em }
+			 [id^=note]:before { content:"\21e6"; font-size:calc(1.25em/0.9); padding:0 0.5em 0 2em; vertical-align:-0.05em }		/*  ARROW  */
+				     .code { font-family:"Courier New", monospace; padding-left:0.5em; padding-right:0.5em }
+		#resultTable [colspan="3"] { height:0.5em; border:none; background:transparent }
+	</style>
+
+	<script>
+		function timeObj(d,n){
+
+			// d=proto chain depth  (like 10)
+			// n=test loop count    (like 10,000,000)
+
+			function newObj(){}
+
+			var proto1= {x:1, y:1, constructor:newObj}
+			newObj.prototype= proto1
+			var obj1= new newObj()
+
+			var protod= {x:d, y:d, constructor:newObj}
+			var protod_1= null
+			newObj.prototype= protod
+			for (var i=0; i<d-1; i++){
+				newObj.prototype= new newObj()
+				if (!protod_1) protod_1= newObj.prototype
+			}
+			var objd= new newObj()
+			if (!protod_1) protod_1= objd
+
+
+			var t1,x1, t2,x2, t3,x3, t4,x4, t5,x5, t6,x6
+
+			function getObj_x(obj,proto){ proto.x=proto.y; return obj.x }		// dummy func.  just returns obj.x   ---maybe defeats caching of inheritance chain
+
+			function doit(obj,proto,testnum){
+
+					/**********************/
+					/****(sanity check)****/
+					/**********************/
+					var tmppx= proto.x
+					proto.x= 'kilroy'
+					var tmpox= obj.x
+					proto.x= tmppx
+					if (tmpox != 'kilroy'){
+
+						var msg= "Test testnum: Unexpected value obj.x=tmpox but prototype.x=tmppx"
+							 .replace(/testnum|tmpox|tmppx/g, function(m){return eval(m)} )
+
+						if (!confirm( msg+ "\n\nDo you want to continue?")){
+							var error= new Error(msg)
+							error.name="foobird"
+							throw(error)
+						}
+					}
+					/**********************/
+
+				var t0= performance.now()
+				for (var i=0,x=0; i<n; i++) x += getObj_x(obj,proto)/(i+1)
+				//return (performance.now()-t0).toFixed(3).replace(/.000$|00$|0$|$/,"")
+				  return (performance.now()-t0).toFixed(2)
+			}
+
+			function set__proto__(target,newProto){
+				if (radioBtn.chkd)
+					target.__proto__ = newProto
+				else	Object.setPrototypeOf( target, newProto )
+			}
+
+			t1= doit(obj1,proto1,1)
+			x1= obj1.x
+
+			t2= doit(objd,protod,2)
+			x2= objd.x
+
+			protod_1.x= protod_1.y= d-1
+			t3= doit(objd,protod_1,3)
+			x3= objd.x
+			delete protod_1.x
+			delete protod_1.y
+
+			for (var i=0, p=objd; i<d-1; i++) p= p.__proto__
+			p.x= p.y= d-1
+			t4= doit(objd,p,4)
+			x4= objd.x
+			delete p.x
+			delete p.y
+
+			proto1.x= proto1.y= d
+			set__proto__(p,proto1)
+			t5= doit(objd,proto1,5)
+			x5= objd.x
+
+			proto1.x= proto1.y= d+1
+			newObj.prototype= proto1
+			set__proto__(p, new newObj())
+			t6= doit(objd,proto1,6)
+			x6= objd.x
+
+			return { t1:t1, x1:x1, t2:t2, x2:x2, t3:t3, x3:x3, t4:t4, x4:x4, t5:t5, x5:x5, t6:t6, x6:x6 }
+		}
+
+		function btnGo(){
+			var n= parseInt(inputN.value,10)
+			var d= parseInt(inputD.value,10)
+
+			resultTable.style.visibility="hidden"
+
+			if (!(n>0 && d>0)){
+				if (!(n>0)) inputN.className="bad"
+				if (!(d>0)) inputD.className="bad"
+				return
+			}
+			inputN.value= n
+			inputD.value= d
+
+			btn.disabled= radioBtn.disabled= true
+
+			requestAnimationFrame( function(){
+				requestAnimationFrame( function(){
+					try{
+						var o= timeObj(d,n)
+
+						var protoText= "<span class=code>$</span>"
+								.replace("$", radioBtn.chkd ? "__proto__" : "Object.setPrototypeOf()" )
+
+						numT1.innerHTML= o.t1
+						numX1.innerHTML= o.x1
+						 //note1.innerHTML= "one level of inheritance, just for comparison"
+
+						numT2.innerHTML= o.t2
+						numX2.innerHTML= o.x2
+						   note2.innerHTML= o.x2 + " levels of inheritance, per proto depth input box"
+
+						numT3.innerHTML= o.t3
+						numX3.innerHTML= o.x3
+						   note3.innerHTML= "prototype.x was superseded by adding .x property to the next-to-last prototype (" +o.x3+ " of " +o.x2+ ") <i>directly</i>"
+
+						numT4.innerHTML= o.t4
+						numX4.innerHTML= o.x4
+						   note4.innerHTML= "prototype.x was superseded by adding .x property to the next-to-last prototype (" +o.x4+ " of " +o.x2+ ") via " +protoText
+
+
+						numT5.innerHTML= o.t5
+						numX5.innerHTML= o.x5
+						   note5.innerHTML= "removed Test 4 obj.x.&nbsp; and, final prototype (" +o.x5+ ") was replaced via " +protoText+ " for this computation"
+
+						numT6.innerHTML= o.t6
+						numX6.innerHTML= o.x6
+						   note6.innerHTML= "final prototype (" +d+ ") replaced and extended one more level (" +o.x6+ ") via " +protoText+ " for this computation"
+
+						resultTable.style.visibility="visible"
+					}finally{
+						btn.disabled= radioBtn.disabled= false
+					}
+				})
+			})
+		}
+
+		onload= function(){
+			inputN.value= 10000000
+			inputD.value= 10
+			inputN.style.width= inputD.style.width= getComputedStyle(inputN).width
+			btn.focus()
+			radioBtn.checked= radioBtn.chkd= true
+		}
+		onkeydown= function(evt){
+			if ( evt.keyCode=="\b".charCodeAt(0) && !("selectionStart" in evt.target) )  { /*evt.stopPropagation();*/ evt.preventDefault() }
+		}
+	</script>
+
+	<table id=inputTable>
+		<tr>	<td>Enter loop count:	<td><input id=inputN onfocus="removeAttribute('class')" onkeypress="if (event.keyCode=='\r'.charCodeAt(0)) {btn.focus();btn.click()}">
+		<tr>	<td>Enter proto depth:	<td><input id=inputD onfocus="removeAttribute('class')" onkeypress="if (event.keyCode=='\r'.charCodeAt(0)) {btn.focus();btn.click()}">
+	</table>
+
+	<span id=spanBtnz>
+		<button id=btn onclick=btnGo()>go</button>
+		<input id=radioBtn type=radio onclick="checked=chkd=!chkd"  title="&#xFEFF; on:  __proto__ &#x0A;&#xFEFF; off:  Object.setPrototypeOf() &#xFEFF;">	<!-- Chrome bug:  ZWNBSP=BOM to prevent top line leading-space suppression -->
+	</span>
+
+	<table id=resultTable>
+		<tr>	<td id=test1 rowspan=2>Test 1	<td id=resultT1><span id=numT1></span> ms	<td id=note1 rowspan=2>one level of inheritance, just for comparison
+		<tr>					<td id=resultX1>depth=<span id=numX1></span>
+		<tr>					<td colspan=3>
+		<tr>	<td id=test2 rowspan=2>Test 2	<td id=resultT2><span id=numT2></span> ms	<td id=note2 rowspan=2>
+		<tr>					<td id=resultX2>depth=<span id=numX2></span>
+		<tr>					<td colspan=3>
+		<tr>	<td id=test3 rowspan=2>Test 3	<td id=resultT3><span id=numT3></span> ms	<td id=note3 rowspan=2>
+		<tr>					<td id=resultX3>depth=<span id=numX3></span>
+		<tr>					<td colspan=3>
+		<tr>	<td id=test4 rowspan=2>Test 4	<td id=resultT4><span id=numT4></span> ms	<td id=note4 rowspan=2>
+		<tr>					<td id=resultX4>depth=<span id=numX4></span>
+		<tr>					<td colspan=3>
+		<tr>	<td id=test5 rowspan=2>Test 5	<td id=resultT5><span id=numT5></span> ms	<td id=note5 rowspan=2>
+		<tr>					<td id=resultX5>depth=<span id=numX5></span>
+		<tr>					<td colspan=3>
+		<tr>	<td id=test6 rowspan=2>Test 6	<td id=resultT6><span id=numT6></span> ms	<td id=note6 rowspan=2>
+		<tr>					<td id=resultX6>depth=<span id=numX6></span>
+
+	</table>

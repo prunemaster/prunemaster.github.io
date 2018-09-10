@@ -1,0 +1,109 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title> table </title>
+
+  <!-- ======================================================================== -->
+  <!-- https://answers.microsoft.com/en-us/edge/forum/                          -->
+  <!-- edge_crash-edge_win10/edge-limitation-in-rendering-a-table-having-more/  -->
+  <!-- a48c30e5-4355-4d13-813b-d51839caafd3                                     -->
+  <!-- ======================================================================== -->
+
+  <style>
+     body { font: 12pt 'Segoe UI',sans-serif }
+        p { white-space:nowrap; margin-bottom:2em }
+    input { font: 11pt Consolas,monospace; padding-left:0.25em; margin-left:1em }
+     span { margin-left:2em }
+    table { border-collapse:collapse; white-space:nowrap; margin-bottom:2em }
+     .ttd { background:gray; color:transparent; opacity:0.2 }
+       td { padding-left:0.5em; padding-right:0.5em; border:1px solid black }
+     .zed { margin:auto 0.25em }
+  </style>
+
+  <script>
+    var initValue=500, initAltMethod=false
+
+    onload=function(){
+      altMethod.checked=initAltMethod
+      input.selectionStart=
+      input.selectionEnd= String(input.value=initValue).length
+      input.focus()
+    }
+    document.onkeypress=function(event,n){
+      if( "\r"==String.fromCharCode(event.keyCode)
+           && (n=parseInt(input.value))>0
+        ) setTimeout( function(){ newTable(n) })
+    }
+
+    function newTable(n){
+      newTable=function(x){
+        if (F.busy) return
+        else F.busy=true
+        n=x
+        elapsed.innerHTML="clearing..."
+        requestAnimationFrame( function(){
+          requestAnimationFrame( F )
+        })
+      }
+      function F(){
+        var T0=performance.now(), T
+        if (altMethod.checked)
+              table.outerHTML="<table id=table></table>"
+        else  while (table.firstChild) table.removeChild(table.firstChild)
+
+        elapsed.innerHTML="building..."
+        requestAnimationFrame( function(){
+          requestAnimationFrame( function(){
+            if (altMethod.checked){
+              var zed="<input name=zed class=zed type=radio>"
+              for (var i=0, j, html="<table id=table class=ttd>"; i<n; i++)
+                for (j=1, html+="<tr>"; j<=10; j++)
+                  html+="<td>"+zed+(i*10+j)
+              table.outerHTML=html+"</table>"
+            }
+            else{
+              table.className="ttd"
+              var zed=document.createElement("input")
+                  zed.setAttribute("type","radio")
+                  zed.setAttribute("name","zed")
+                  zed.setAttribute("class","zed")
+              for (var i=0; i<n; i++)
+                for (var j=1,C,R=table.insertRow(); j<=10; j++){
+                  C=R.insertCell()
+                  C.appendChild(zed.cloneNode(false))
+                  C.appendChild(document.createTextNode(i*10+j))
+                }
+            }
+            zed=table.rows[n-1].cells[10-1].firstChild
+            zed.focus()
+            table.className=""
+            zed.click()
+            document.documentElement.scrollTop=0  // FF,Chrome
+            document.body.scrollTop=0             // msBrowser
+            input.focus()
+            requestAnimationFrame( function(){
+              T=Math.round(performance.now()-T0)
+              elapsed.innerHTML="Elapsed time= "+(T<1000?T+" ms":T/1000+" sec")
+              setTimeout( function(){F.busy=false},1000 )
+            })
+          })
+        })
+      }
+      pressEnter.style.display="none"
+      F.busy=true
+      F()
+    }
+  </script>
+
+  <p id=p>
+    Enter table row count
+    <input id=input autofocus maxLength=6 size=6 value=500>
+    <span id=elapsed></span>
+    <br>
+    <label title="off: use table API&#x0A;on: use outerHTML">
+      <input id=altMethod type=checkbox
+             title="off: use table API&#x0A;on: use outerHTML">
+      Alternate method
+    </label>
+  </p>
+  <p id=pressEnter>Press Enter to start</p>
+  <table id=table></table>

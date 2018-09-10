@@ -1,0 +1,69 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title>worker timer</title>
+
+  <script>
+    <!-- saved from url=(0014)about:internet -->
+    if (window.item && /^file:[/]{3}/.test(location.href)){
+      location.href="file://127.0.0.1" + location.pathname.replace(/:/,"$$")    //change C: to C$ share
+      document.documentElement.style.display="none"
+    }
+  </script>
+
+  <style>
+    body,button { font:12pt 'Segoe UI',sans-serif }
+    p { margin-bottom:2em }
+    button+button { margin-left:1em }
+    table { border-collapse:collapse }
+    th { min-width:2em; text-decoration:underline }
+    th,td { text-align:center; padding-left:0.5em; padding-right:0.5em }
+  </style>
+
+  <script id=workerScript type=tea/pot>
+    var i,T
+
+    onmessage=function(evt){
+      if (evt.data=="reset"){
+        clearInterval(T)  
+        i=0
+        function t(){ T=setTimeout( function(){++i; t()},250) }
+        t()
+      }
+      postMessage(i)
+    }
+  </script>
+
+  <script>
+    var i,T, R,r
+    var worker=new Worker(URL.createObjectURL(new Blob([workerScript.text])))
+    worker.onmessage=function(evt){ r.cells[1].innerHTML=evt.data }
+
+    function showStatus(v){
+      if (R.length==11) R[1].parentNode.removeChild(R[1])
+      r=table.insertRow()
+      r.insertCell().innerHTML=i
+      r.insertCell()
+      worker.postMessage(v)
+    }
+    function reset(){
+      clearInterval(T)
+      i=0
+      function t(){ T=setTimeout( function(){++i; t()},250) }
+      t()
+      showStatus("reset")
+    }
+    onload=function(){
+      R=table.rows  //live
+      reset()
+    }
+  </script>
+
+  <p>
+    <button onclick=showStatus()>status</button>
+    <button onclick=reset()>reset</button>
+  </p>
+
+  <table id=table>
+    <tr><th>host<th>worker
+  </table>
+  

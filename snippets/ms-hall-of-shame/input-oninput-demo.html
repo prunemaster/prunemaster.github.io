@@ -1,0 +1,37 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title> oninput -vs- onchange </title>
+
+  <style>
+     body{ font:12pt 'Segoe UI',sans-serif }
+    input,
+     span{ font:11pt Consolas,monospace; padding-left:0.4em; padding-right:0.4em }
+     span:empty{ padding-left:0; padding-right:0 }
+     span{ background:white }
+       h4{ margin-top:0 }
+        u{ margin-right:1em }
+      div{ display:inline-block; white-space:nowrap; padding:1em; margin:1em;
+           background:lavender }
+  </style>
+
+  <div>
+  <h4>oninput</h4>
+  <p><u>Enter your PIN</u>
+    <input size=1  maxLength=6
+           oninput="size=(echo1.innerText=value).length||1"
+           onkeypress="if (event.charCode==0x1B) oninput()" >
+  <p><u>You input this</u> <span id=echo1></span>
+  </div>
+
+  <div>
+  <h4>onchange</h4>
+  <p><u>Enter your PIN</u>
+    <input size=1  maxLength=6
+           onchange="size=(echo2.innerText=value).length||1"
+           onkeypress="if (event.charCode==0x1B) onchange()" >
+  <p><u>You input this</u> <span id=echo2></span>
+  </div>
+
+
+
+

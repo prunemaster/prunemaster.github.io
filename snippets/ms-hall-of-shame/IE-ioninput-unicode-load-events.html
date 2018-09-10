@@ -1,0 +1,68 @@
+﻿<!doctype html>
+  <title>input umlaut test</title>
+  <meta charset=utf-8>
+
+  <!-- ============================================================================================= -->
+  <!--                                                                                               -->
+  <!-- https://social.technet.microsoft.com/Forums/ie/en-US/d68988ac-c2d2-409b-8af1-c2e8a4e49496/    -->
+  <!-- ie11-triggers-input-event-when-value-contains-umlaut                                          -->
+  <!--                                                                                               -->
+  <!-- after ONLOAD,                                                                                 -->
+  <!-- in INPUT element, it seems that IE fires INPUT EVENT if any UTF-8 char is beyond 7-bit ASCII. -->
+  <!-- ============================================================================================= -->
+
+  <style>
+     body,input { font:12pt 'Segoe UI',sans-serif; white-space:nowrap }
+  </style>
+
+  <script>
+    function f(evt){
+
+      var TS= window.performance && (performance.timeOrigin || performance.timing.navigationStart), useTS=false
+
+      var Q=[]
+
+      function Qpush(evt){
+        var t=evt.timeStamp
+        if (TS && (useTS= useTS || t<1000000 || /\./.test(t) ))
+          t= (t+TS).toFixed(3)
+        Q.push([t, evt.type, evt.target.value||evt.target.readyState])
+      }
+
+      function Qshow(evt){
+        for (var a=Qpush(evt),t; a=Q.shift(); ){
+          t= "<br>$0&ensp;&bull;&ensp;$1 event"    // [ timeStamp, type, value||readyState||undefined ]
+            .replace("$0", a[0])
+            .replace("$1", a[1])
+          if (a[1]=="readystatechange")
+            t+= "&ensp;readyState=$2"
+              .replace("$2", a[2])
+          else if (a[1]=="input" && a[2])
+            t+= ("&ensp;$2"+(a[2][1]?"&emsp;(0x$3)":""))
+              .replace("$2", a[2])
+              .replace("$3", a[2].charCodeAt(1).toString(16).toUpperCase())
+          document.body.insertAdjacentHTML("beforeend", t)
+        }
+      }
+
+      f= function(evt){
+        if (evt.type=='load' || evt.type=='DOMContentLoaded')
+          (f=Qshow)(evt)
+        else  Qpush(evt)
+      }
+      f(evt)
+    }
+    onload=
+    onpageshow=
+    onpopstate=
+    onfocus=
+    document.onreadystatechange= function(evt){ f(evt||event) }
+    if (window.addEventListener) addEventListener("DOMContentLoaded", function(evt){ f(evt) })
+  </script>
+
+  <input value=cédille oninput=f(event)>   <input value=cEdille oninput=f(event)> <br>
+  <input value=cädille oninput=f(event)>   <input value=cAdille oninput=f(event)> <br>
+  <input value=c¢dille oninput=f(event)>   <input value=cCdille oninput=f(event)> <br>
+  <input value=cΣdille oninput=f(event)>   <input value=cZdille oninput=f(event)> <br>
+  <input value=cΩdille oninput=f(event)>   <input value=cUdille oninput=f(event)> <br>
+  <input value=c💩dille oninput=f(event)>   <input value=cXdille oninput=f(event)> <br>

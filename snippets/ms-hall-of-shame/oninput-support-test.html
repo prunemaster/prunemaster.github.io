@@ -1,0 +1,38 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title> oninput </title>
+
+  <style>
+          * { font:12pt 'Segoe UI',sans-serif }
+       .hid { visibility:hidden }
+      input,
+   textarea,
+     select { margin-left:1em }
+     button { margin-right:1em }
+        div { display:inline-block }
+      #wrap { margin-top:2em; text-align:center; letter-spacing:-40px }
+    #wrap * { letter-spacing:normal }
+       #div { padding:1em; border:1px solid black }
+  </style>
+
+  <script>
+    var counter=0
+    oninput=function(){ div.innerHTML=++counter }
+    onload=function(){ sel.selectedIndex=-1 }
+  </script>
+
+  <p>text area<textarea rows=2 cols=25></textarea>
+  <p>text input<input type=text>
+  <p>select<select id=sel><option>moe<option>larry<option>curly</select>
+  <p><label>checkbox<input type=checkbox></label>
+  <p><label><span class=   >radio buttons</span><input type=radio name=rb></label> <br>
+     <label><span class=hid>radio buttons</span><input type=radio name=rb></label>
+  <p><button onclick="try{top.dispatchEvent(new Event('input'))}catch(e){}">Event()</button>
+     <button onclick="try{top.dispatchEvent(new UIEvent('input'))}catch(e){}">UIEvent()</button>
+     <button onclick="try{top.dispatchEvent(new InputEvent('input'))}catch(e){}">InputEvent()</button>
+  </p>
+  <div id=wrap>
+    <span>count</span>
+    <br>
+    <div id=div></div>
+  </div>

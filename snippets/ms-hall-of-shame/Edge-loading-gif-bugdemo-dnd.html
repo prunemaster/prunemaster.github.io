@@ -1,0 +1,94 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title> Edge stalled gif demo </title>
+
+  <script id=DRAG-N-DROP >
+
+    document.ondragenter=
+    document.ondragover=
+      function(evt){
+        evt.stopPropagation && evt.stopPropagation()
+        evt.preventDefault && evt.preventDefault()
+        return ( evt.returnValue= false )
+      }
+    document.ondrop=
+      function(evt){
+        this.ondragover(evt)
+
+        var dropfile= (evt.dataTransfer.files||[{}])[0]
+        if (dropfile.type!="image/gif") return false
+
+        var filereader=new FileReader()
+
+        filereader.onloadend=function(){
+          if (!this.error){
+            window.go= function(W,H){
+              imgNone.disabled=false
+              var newcss= "img,div {width:Wpx; height:Hpx}"
+                          .replace("W",W)
+                          .replace("H",H)
+              STYLE.innerHTML=STYLE.innerHTML.replace(/div,img.*?[}]/,newcss)
+              showhide.setAttribute("value","show")
+              gif.setAttribute("src",filereader.result)
+              gif.setAttribute("alt",document.title=dropfile.name)
+              var html="<!doctype html>\n"+document.documentElement.outerHTML,
+                  doc=document.open()
+              doc.write(html)
+              doc.close()
+            }
+
+            var IMG= [ '<img style=display:none src=' +this.result,
+                       '     onerror=parentNode.removeChild(this)',
+                       '     onload=onerror();go(naturalWidth,naturalHeight) >'
+                     ].join("\n")                  
+
+            document.body.insertAdjacentHTML("beforeend",IMG)
+          }
+        }
+        filereader.readAsDataURL(dropfile)
+        return false
+      }
+  </script>
+
+  <!-- http://tu.unaux.com/peech.html -->
+
+  <style id=STYLE>
+    body { font: 12pt 'Segoe UI',sans-serif }
+    input { font: 12pt system-ui,sans-serif }
+    div { margin-bottom:2em }
+    div,img { width:48px; height:48px }
+    input+input { margin-left:1em }
+    ::-moz-focus-inner { border:none }
+    input:focus { outline:none }
+  </style>
+
+  <style id=imgNone>
+    img { display:none }
+  </style>
+
+  <audio id=TADA></audio> <audio id=CHIMES></audio> <audio id=NOTIFY></audio>
+
+  <script>
+    onload=function(){
+      imgNone.disabled=true
+      showhide.style.width=showhide.offsetWidth+"px"
+      showhide.value="hide"
+    }
+    document.querySelectorAll("audio").forEach( function(a){
+      a.volume=0.25
+      a.src="http://www.mscs.mu.edu/~mikes/174/demos/Win98sounds/"+a.id+".WAV"
+    })
+  </script>
+
+  <div>
+    <img id=gif alt=loading.gif
+         src=https://social.microsoft.com/forums/resources/Images/loading.gif >
+  </div>
+
+  <input type=button id=showhide value=show
+         onclick="value=--imgNone.disabled?'hide':'show'
+                  imgNone.disabled?CHIMES.play():NOTIFY.play()">
+
+  <input type=button value=fix
+         onclick="gif.outerHTML=gif.outerHTML
+                  TADA.play()" >

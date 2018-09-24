@@ -1,0 +1,77 @@
+<!doctype html>
+  <meta charset=utf-8>
+  <title> IE version sniffer </title>
+
+  <link rel="shortcut icon" href=https://github.com/images/icons/ie-notice.png>
+
+  <script id=sniff>
+  <!-- saved from url=(0014)about:internet -->
+    sniff.style.cssText="zoom:1!important;zoom:0;ie5=1"
+    var IE= !!window.item, MS= !!document.focus,
+        IE5=  IE && !!sniff.style.ie5
+        IE6=  IE && !IE5 && !+sniff.style.zoom,
+        IE7=  IE && !IE5 && !IE6 && !window.Window,
+        IE8=  IE && !IE5 && !IE6 && !IE7 && !document.doctype,
+        IE9=  IE && !IE5 && !IE6 && !IE7 && !IE8 && !window.File,
+        IE10= IE && !IE5 && !IE6 && !IE7 && !IE8 && !IE9 && !window.__proto__,
+        IE11= IE && !IE5 && !IE6 && !IE7 && !IE8 && !IE9 && !IE10,
+        Edge= MS && !IE,
+        msBrowser= MS && ["IE5","IE6","IE7","IE8","IE9","IE10","IE11","Edge"]
+                         .sort(function(x,y){return(top[y]-top[x])})[0]
+  </script>
+
+  <script id=accolades>
+    if (!String.fromCodePoint)
+      String.fromCodePoint=function(v){
+        var t=document.createElement("textarea")
+        t.innerHTML="&#v;".replace("v",v)
+        return t.value
+      }
+    var frownie=   "\u2639",
+        skull=     "\u2620",
+        frownieWD= "<span style=font-family:wingdings>L</span>",
+        skullWD=   "<span style=font-family:wingdings>N</span>",
+        thumbup=   String.fromCodePoint(0x1F44D),
+        thumbdown= String.fromCodePoint(0x1F44E),
+        pileofpoo= String.fromCodePoint(0x1F4A9)
+
+    if (IE5||IE6)   msBrowser+=" "+skullWD
+    else if (IE)    msBrowser+=" "+skull
+    else if (Edge)  msBrowser+=" "+thumbdown
+  </script>
+
+  <style>
+    html,body { width:100%; height:100%; padding:0;border:0;margin:0 }
+         body { font: 20pt 'Segoe UI',sans-serif;
+                background: repeat url(https://github.com/images/icons/ie-notice.png) lightgrey }
+            p { padding:1em; background:white; white-space:nowrap;
+                display:inline-block; border: 4px solid lightslategray }
+        table { width:100%;height:100% }
+           td { text-align:center; vertical-align:middle }
+            p { font-size:20pt }
+  </style>
+
+  <style onload="disabled=IE5||IE6||IE7||IE8||IE9
+                 if (IE10||IE11||Edge)
+                    innerHTML=innerHTML
+                    .replace(/mediumseagreen/g,'firebrick')
+                    .replace(/Congratulations!/,pileofpoo)">
+
+                    p { position:relative; transform:translate(-50%,-50%) translate(50vw,50vh) }
+      p:hover::before { content: "Congratulations!"; text-align:center;
+                        position:absolute; top:-4px;right:-4px;bottom:-4px;left:-4px;
+                        border: 4px solid mediumseagreen; background:white; padding:1em;
+                        color:mediumseagreen; font-weight:bold; text-shadow:black 0 1px 1px }
+  </style>
+
+  <p id=p>Your browser is
+     <script>document.write(msBrowser?msBrowser:('not IE '+thumbup))</script>
+  </p>
+
+  <script>
+    if (IE5||IE6||IE7||IE8||IE9){
+        p.style.cssText="float:left; padding:0"
+        p.style.cssText="width:"+p.offsetWidth+"px"
+        p.outerHTML="<table><tr><td>"+p.outerHTML+"</table>"
+    }
+  </script>

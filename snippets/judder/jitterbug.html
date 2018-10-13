@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title> IE11 scroll jitter </title>
+
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+	 	}
+		body {
+			font-family: 'Segoe UI', sans-serif;
+			color: #363636;
+			cursor: pointer;
+		}
+		body, #header, #footer {
+
+			/*   background: url(bg_branding_technet.jpg) center center no-repeat fixed #dcdcdb; */
+
+			background-color: #dcdcdb;
+			background-repeat: no-repeat;
+			background-image: url(bg_branding_technet.jpg);
+			background-attachment: fixed;
+			background-position: center center;
+			/*     background-clip: border-box;	*/
+			/*     background-origin: border-box;	*/
+			background-size: cover;
+
+			-moz-background-size: cover; 
+			-webkit-background-size: cover; 
+			-o-background-size: cover;
+		}
+		#wrapper, #header, #footer {
+			margin-left: auto;
+			margin-right: auto;
+			width: 50%;
+		}
+		#header, #footer {
+			position: fixed;
+			left: 0;
+			right: 0;
+		}
+	 	#footer {
+			bottom: 0px;
+		}
+		.footer {
+			height: 50px;
+		}
+		.logo {
+			padding-top: 100px;
+		}
+		.menu {
+			padding-top: 100px;
+		}
+		ol {
+			padding-top: 0px;
+			margin-top: 0px;
+			padding-bottom: 0px;
+			margin-bottom: 0px;
+		}
+		.placeholder {
+			visibility: hidden;
+		}
+		.text-window, .text-window-top-btm {
+			 background-color: rgba(208,208,208,0.75);
+		}
+		.text-window-top-btm {
+			padding-top: 20px;
+		}
+		.logo, .menu, .text-window {
+			padding-left: 5%;
+		}
+	</style>
+
+	<!-- ============================================= -->
+
+	<script>
+		onload= function(){	var state= 0;
+					document.body.onclick= function(){	var i,p,s;
+										switch (++state) {
+											case 1: (i="none", p="absolute", s="cover"); break;
+											case 2: (i="url(bg_branding_technet.jpg)", p="fixed", s="cover"); break;
+											case 3: (i="url(bg_branding_technet.jpg)", p="fixed", s="contain"); break;
+											case 4: (i="url(bg_branding_technet.jpg)", p="fixed", s="cover"); state=0 }
+										this.style.backgroundImage=i; this.style.backgroundSize=header.style.backgroundSize=s; header.style.position=p }
+
+					var delta= (document.documentMode && !window.attachEvent &&					// qualify IE11.  IE11 is first IE to abandon attachEvent.  (prelim IE12 eliminates docMode)
+					  		location.search.replace(/(^\?(FIX)(=\d*)?$|.*)/i,"$2$3") )			// querystring:  ?FIX use wheelDelta.  ?FIX=nnn use supplied value nnn
+					if (delta){											//
+						delta= +(delta.match(/\d*$/)[0] || "0")							// result:  0= use wheelData.  nnn= use nnn.
+																	//
+						document.documentElement.onmousewheel=							//
+							function(evt){	evt.preventDefault()						//
+									if (!delta) scrollBy(0,-evt.wheelDelta)				// large increments like 120 defeat smooth-scrolling.
+									else{	var n=evt.wheelDelta					//
+										var p=Math.abs(n)					//
+										if (p>delta) p=delta					// just hardcode nn pix per event.  15 looks decent.
+										if (n>0) p=-p						//
+										if (n) scrollBy(0,p) }}}				//
+		}
+	</script>
+</head>
+
+<!-- ===================================================== -->
+
+<body>
+	<div id=header>
+		<div class=logo><img src=iexplore.png height=150 width=150 alt="IE logo" /></div>
+		<div class=menu><h1>50 Things To Do</h1></div>
+		<div class=text-window-top-btm></div>
+	</div>
+
+	<div id="wrapper">
+		<div class="placeholder logo"><img src=iexplore.png height=150 width=150 alt="IE logo" /></div>
+		<div class="placeholder menu"><h1>50 Things To Do</h1></div>
+		<div class="placeholder text-window-top-btm"></div>
+
+		<div class=text-window>
+			<ol>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			<li>Things to do</li>
+			</ol>
+
+			<div class="placeholder footer"><div class=text-window-top-btm></div></div>
+		</div>
+	</div>
+
+	<div id=footer class=footer><div class=text-window-top-btm></div></div>
+</body>
+</html>
